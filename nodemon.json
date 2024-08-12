@@ -1,0 +1,11 @@
+{
+	"restartable": "rs",
+	"ignore": [".git", "node_modules/**/node_modules", "src/**/*.test.ts"],
+	"verbose": true,
+	"exec": "bun run src/index.ts --watch | pino-pretty",
+	"watch": ["src/"],
+	"env": {
+		"NODE_ENV": "development"
+	},
+	"ext": "js,json,ts"
+}

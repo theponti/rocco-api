@@ -1,0 +1,4 @@
+{
+	"cSpell.ignoreWords": ["openai", "langchain", "fastify"],
+	"rust-analyzer.completion.autoimport.enable": true
+}
