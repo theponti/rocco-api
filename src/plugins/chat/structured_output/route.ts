@@ -1,98 +1,81 @@
-import { NextRequest, NextResponse } from "next/server";
+import { db } from '@app/db'
+import { ChatMessage } from '@app/db/drizzle/schema'
+import { verifySession } from '@app/plugins/auth/utils'
+import { PromptTemplate } from '@langchain/core/prompts'
+import { ChatOpenAI } from '@langchain/openai'
+import { eq } from 'drizzle-orm'
+import type { FastifyPluginAsync } from 'fastify'
+import fastifyPlugin from 'fastify-plugin'
+import { JsonOutputFunctionsParser } from 'langchain/output_parsers'
+import { z } from 'zod'
+import { zodToJsonSchema } from 'zod-to-json-schema'
 
-import { z } from "zod";
-import { zodToJsonSchema } from "zod-to-json-schema";
+const STRUCTURED_OUTPUT_TEMPLATE = 'Extract the requested fields from the input.'
 
-import { getServerAuthSession } from "@/server/auth";
-import { PromptTemplate } from "@langchain/core/prompts";
-import { ChatOpenAI } from "@langchain/openai";
-import { JsonOutputFunctionsParser } from "langchain/output_parsers";
-
-const TEMPLATE = `Extract the requested fields from the input.
-
-The field "entity" refers to the first mentioned entity in the input.
-
-Input:
-{input}`;
-
-/**
- * This handler initializes and calls an OpenAI Functions powered
- * structured output chain. See the docs for more information:
- *
- * https://js.langchain.com/docs/modules/chains/popular/structured_output
- */
-export async function POST(req: NextRequest) {
-  const session = await getServerAuthSession();
-
-  if (!session) {
-    return NextResponse.json(null, { status: 401 });
-  }
-
-  try {
-    const body = await req.json();
-    const messages = body.messages ?? [];
-    const currentMessageContent = messages[messages.length - 1].content;
-
-    const prompt = PromptTemplate.fromTemplate(TEMPLATE);
-    /**
-     * Function calling is currently only supported with ChatOpenAI models
-     */
-    const model = new ChatOpenAI({
-      temperature: 0.8,
-      modelName: "gpt-3.5-turbo-1106",
-    });
-
-    /**
-     * We use Zod (https://zod.dev) to define our schema for convenience,
-     * but you can pass JSON Schema directly if desired.
-     */
-    const schema = z.object({
-      tone: z
-        .enum(["positive", "negative", "neutral"])
-        .describe("The overall tone of the input"),
-      entity: z.string().describe("The entity mentioned in the input"),
-      word_count: z.number().describe("The number of words in the input"),
-      chat_response: z.string().describe("A response to the human's input"),
-      final_punctuation: z
-        .optional(z.string())
-        .describe("The final punctuation mark in the input, if any."),
-    });
-
-    /**
-     * Bind the function and schema to the OpenAI model.
-     * Future invocations of the returned model will always use these arguments.
-     *
-     * Specifying "function_call" ensures that the provided function will always
-     * be called by the model.
-     */
-    const functionCallingModel = model.bind({
-      functions: [
-        {
-          name: "output_formatter",
-          description: "Should always be used to properly format output",
-          parameters: zodToJsonSchema(schema),
+export const structuredOutputPlugin: FastifyPluginAsync = async (fastify) => {
+  fastify.post(
+    '/structuredOutput',
+    {
+      preHandler: verifySession,
+      schema: {
+        body: {
+          type: 'object',
+          required: ['chatId', 'message'],
+          properties: {
+            chatId: { type: 'string' },
+            message: { type: 'string' },
+          },
         },
-      ],
-      function_call: { name: "output_formatter" },
-    });
+      },
+    },
+    async (request, reply) => {
+      const { chatId, message } = request.body as {
+        chatId: string
+        message: string
+      }
 
-    /**
-     * Returns a chain with the function calling model.
-     */
-    const chain = prompt
-      .pipe(functionCallingModel)
-      .pipe(new JsonOutputFunctionsParser());
+      const messages = await db.select().from(ChatMessage).where(eq(ChatMessage.chatId, chatId))
 
-    const result = await chain.invoke({
-      input: currentMessageContent,
-    });
+      const prompt = PromptTemplate.fromTemplate(STRUCTURED_OUTPUT_TEMPLATE)
 
-    return NextResponse.json(result, { status: 200 });
-  } catch (e) {
-    // eslint-disable-next-line no-console
-    console.error(e);
-    return NextResponse.json(null, {
-      status: (e as { status: number })?.status ?? 500,
-    });
-  }
+      const model = new ChatOpenAI({
+        temperature: 0.8,
+        modelName: 'gpt-3.5-turbo-1106',
+      })
+
+      const schema = z.object({
+        tone: z.enum(['positive', 'negative', 'neutral']).describe('The overall tone of the input'),
+        entity: z.string().describe('The entity mentioned in the input'),
+        word_count: z.number().describe('The number of words in the input'),
+        chat_response: z.string().describe("A response to the human's input"),
+        final_punctuation: z
+          .optional(z.string())
+          .describe('The final punctuation mark in the input, if any.'),
+      })
+
+      const functionCallingModel = model.bind({
+        functions: [
+          {
+            name: 'output_formatter',
+            description: 'Should always be used to properly format output',
+            parameters: zodToJsonSchema(schema),
+          },
+        ],
+        function_call: { name: 'output_formatter' },
+      })
+
+      const chain = prompt.pipe(functionCallingModel).pipe(new JsonOutputFunctionsParser())
+
+      const result = await chain.invoke({
+        input: [...messages.map((m: { content: string }) => m.content), message].join('\n'),
+      })
+
+      return {
+        chatId,
+        result,
+      }
+    }
+  )
 }
+
+export default fastifyPlugin(structuredOutputPlugin)

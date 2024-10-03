@@ -1,24 +1,26 @@
 import { relations } from "drizzle-orm/relations";
-import { user, token, account, session, idea, bookmark, flight, list, place, item, movie, movieViewings, userLists, listInvite } from "./schema";
+import { user, account, bookmark, chat, chatMessage, flight, list, idea, item, token, movie, movieViewings, place, session, userLists, listInvite } from "./schema";
 
-export const tokenRelations = relations(token, ({one}) => ({
+export const accountRelations = relations(account, ({one}) => ({
 	user: one(user, {
-		fields: [token.userId],
+		fields: [account.userId],
 		references: [user.id]
 	}),
 }));
 
 export const userRelations = relations(user, ({many}) => ({
-	tokens: many(token),
 	accounts: many(account),
-	sessions: many(session),
-	ideas: many(idea),
 	bookmarks: many(bookmark),
+	chats: many(chat),
+	chatMessages: many(chatMessage),
 	flights: many(flight),
 	lists: many(list),
-	places: many(place),
+	ideas: many(idea),
 	items: many(item),
+	tokens: many(token),
 	movieViewings: many(movieViewings),
+	places: many(place),
+	sessions: many(session),
 	userLists: many(userLists),
 	listInvites_invitedUserId: many(listInvite, {
 		relationName: "listInvite_invitedUserId_user_id"
@@ -28,30 +30,28 @@ export const userRelations = relations(user, ({many}) => ({
 	}),
 }));
 
-export const accountRelations = relations(account, ({one}) => ({
-	user: one(user, {
-		fields: [account.userId],
-		references: [user.id]
-	}),
-}));
-
-export const sessionRelations = relations(session, ({one}) => ({
-	user: one(user, {
-		fields: [session.userId],
-		references: [user.id]
-	}),
-}));
-
-export const ideaRelations = relations(idea, ({one}) => ({
-	user: one(user, {
-		fields: [idea.userId],
-		references: [user.id]
-	}),
-}));
-
 export const bookmarkRelations = relations(bookmark, ({one}) => ({
 	user: one(user, {
 		fields: [bookmark.userId],
+		references: [user.id]
+	}),
+}));
+
+export const chatRelations = relations(chat, ({one, many}) => ({
+	user: one(user, {
+		fields: [chat.userId],
+		references: [user.id]
+	}),
+	chatMessages: many(chatMessage),
+}));
+
+export const chatMessageRelations = relations(chatMessage, ({one}) => ({
+	chat: one(chat, {
+		fields: [chatMessage.chatId],
+		references: [chat.id]
+	}),
+	user: one(user, {
+		fields: [chatMessage.userId],
 		references: [user.id]
 	}),
 }));
@@ -78,25 +78,28 @@ export const listRelations = relations(list, ({one, many}) => ({
 	listInvites: many(listInvite),
 }));
 
-export const placeRelations = relations(place, ({one}) => ({
+export const ideaRelations = relations(idea, ({one}) => ({
 	user: one(user, {
-		fields: [place.userId],
+		fields: [idea.userId],
 		references: [user.id]
-	}),
-	item: one(item, {
-		fields: [place.itemId],
-		references: [item.id]
 	}),
 }));
 
 export const itemRelations = relations(item, ({one, many}) => ({
-	places: many(place),
 	list: one(list, {
 		fields: [item.listId],
 		references: [list.id]
 	}),
 	user: one(user, {
 		fields: [item.userId],
+		references: [user.id]
+	}),
+	places: many(place),
+}));
+
+export const tokenRelations = relations(token, ({one}) => ({
+	user: one(user, {
+		fields: [token.userId],
 		references: [user.id]
 	}),
 }));
@@ -114,6 +117,24 @@ export const movieViewingsRelations = relations(movieViewings, ({one}) => ({
 
 export const movieRelations = relations(movie, ({many}) => ({
 	movieViewings: many(movieViewings),
+}));
+
+export const placeRelations = relations(place, ({one}) => ({
+	user: one(user, {
+		fields: [place.userId],
+		references: [user.id]
+	}),
+	item: one(item, {
+		fields: [place.itemId],
+		references: [item.id]
+	}),
+}));
+
+export const sessionRelations = relations(session, ({one}) => ({
+	user: one(user, {
+		fields: [session.userId],
+		references: [user.id]
+	}),
 }));
 
 export const userListsRelations = relations(userLists, ({one}) => ({

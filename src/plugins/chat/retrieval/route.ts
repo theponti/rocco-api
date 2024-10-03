@@ -1,4 +1,3 @@
-import { getServerAuthSession } from "@/server/auth";
 import { SupabaseVectorStore } from "@langchain/community/vectorstores/supabase";
 import { Document } from "@langchain/core/documents";
 import {
@@ -10,7 +9,8 @@ import { RunnableSequence } from "@langchain/core/runnables";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
 import { createClient } from "@supabase/supabase-js";
 import { StreamingTextResponse, Message as VercelChatMessage } from "ai";
-import { NextRequest, NextResponse } from "next/server";
+import { FastifyPluginAsync } from 'fastify';
+import fastifyPlugin from 'fastify-plugin';
 
 const combineDocumentsFn = (docs: Document[]) => {
   const serializedDocs = docs.map((doc) => doc.pageContent);
@@ -64,15 +64,11 @@ const answerPrompt = PromptTemplate.fromTemplate(ANSWER_TEMPLATE);
  *
  * https://js.langchain.com/docs/guides/expression_language/cookbook#conversational-retrieval-chain
  */
-export async function POST(req: NextRequest) {
-  const session = await getServerAuthSession();
-
-  if (!session) {
-    return NextResponse.json(null, { status: 401 });
-  }
+const retrievalHandler: FastifyPluginAsync = async (server) => {
+  server.post('/retrieval', async (request, reply) => {
 
   try {
-    const body = await req.json();
+    const body = request.body as { messages: VercelChatMessage[] }
     const messages = body.messages ?? [];
     const previousMessages = messages.slice(0, -1);
     const currentMessageContent = messages[messages.length - 1].content;
@@ -163,17 +159,18 @@ export async function POST(req: NextRequest) {
       ),
     ).toString("base64");
 
-    return new StreamingTextResponse(stream, {
-      headers: {
-        "x-message-index": (previousMessages.length + 1).toString(),
-        "x-sources": serializedSources,
-      },
-    });
+    reply.headers({
+      'x-message-index': (previousMessages.length + 1).toString(),
+      'x-sources': serializedSources,
+    })
+
+    return reply.send(stream)
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error(e);
-    return NextResponse.json(null, {
-      status: (e as { status: number })?.status ?? 500,
-    });
+    return reply.status(500).send({ error: 'Error retrieving information from the database' }); 
   }
+})
 }
+
+export default fastifyPlugin(retrievalHandler)

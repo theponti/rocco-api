@@ -1,27 +1,24 @@
+import { Document } from "@langchain/core/documents";
 import {
-	AutoTokenizer,
-	AutoProcessor,
 	AutoModel,
+	AutoProcessor,
+	AutoTokenizer,
 	RawImage,
-	type Processor,
 	type PreTrainedModel,
 	type PreTrainedTokenizer,
+	type Processor,
 	type Tensor,
 } from "@xenova/transformers";
-import type {
-	RecordMetadata,
-	PineconeRecord,
-} from "@pinecone-database/pinecone";
 import { createHash } from "node:crypto";
 
 import { HominemVectorStore } from "@app/lib/chromadb.js";
 
 class Embedder {
-	private processor: Processor;
+	private processor?: Processor;
 
-	private model: PreTrainedModel;
+	private model?: PreTrainedModel;
 
-	private tokenizer: PreTrainedTokenizer;
+	private tokenizer?: PreTrainedTokenizer;
 
 	async init(modelName: string) {
 		// Load the model, tokenizer and processor
@@ -31,6 +28,9 @@ class Embedder {
 	}
 
 	async getImageEmbedding(image: File): Promise<number[]> {
+		if (!this.model || !this.tokenizer || !this.processor) {
+			throw new Error("Model not initialized");
+		}
 		try {
 			// Prepare the image and text inputs
 			const image_inputs = await this.processor(image);
@@ -49,14 +49,13 @@ class Embedder {
 			throw e;
 		}
 	}
-	// Embeds an image and returns the embedding
-	async embed(
-		imagePath: string,
-		metadata?: RecordMetadata,
-	): Promise<PineconeRecord> {
+
+	async getEmbeddingsFromImage(image: RawImage): Promise<number[]> {
+		if (!this.model || !this.tokenizer || !this.processor) {
+			throw new Error("Model not initialized");
+		}
+
 		try {
-			// Load the image
-			const image = await RawImage.read(imagePath);
 			// Prepare the image and text inputs
 			const image_inputs = await this.processor(image);
 			const text_inputs = this.tokenizer([""], {
@@ -68,9 +67,67 @@ class Embedder {
 			const { image_embeds }: { image_embeds: Tensor } = output;
 			const { data: embeddings } = image_embeds;
 
+			return Array.from(embeddings) as number[];
+		} catch (e) {
+			console.log(`Error embedding image, ${e}`);
+			throw e;
+		}
+	}
+
+	async embedFromBuffer(buffer: Buffer): Promise<{
+		id: string;
+		metadata: { [key: string]: any };
+		values: number[];
+	}> {
+		if (!this.model || !this.tokenizer || !this.processor) {
+			throw new Error("Model not initialized");
+		}
+
+		try {
+			// Load the image
+			const image = await RawImage.fromBlob(new Blob([buffer]));
+			const embeddings = await this.getEmbeddingsFromImage(image);
+
 			await HominemVectorStore.imageVectorStore.addVectors(
 				[embeddings] as number[][],
-				embeddings,
+				[new Document({ pageContent: buffer.toString(), metadata: {} })],
+			);
+
+			// Create an id for the image
+			const id = createHash("md5").update(buffer.toString()).digest("hex");
+
+			// Return the embedding in a format ready for Pinecone
+			return {
+				id,
+				metadata: {},
+				values: Array.from(embeddings) as number[],
+			};
+		} catch (e) {
+			console.log(`Error embedding image, ${e}`);
+			throw e;
+		}
+	}
+
+	async embed(
+		imagePath: string,
+		metadata?: { [key: string]: any },
+	): Promise<{
+		id: string;
+		metadata: { [key: string]: any };
+		values: number[];
+	}> {
+		if (!this.model || !this.tokenizer || !this.processor) {
+			throw new Error("Model not initialized");
+		}
+
+		try {
+			// Load the image
+			const image = await RawImage.read(imagePath);
+			const embeddings = await this.getEmbeddingsFromImage(image);
+
+			await HominemVectorStore.imageVectorStore.addVectors(
+				[embeddings] as number[][],
+				[new Document({ pageContent: imagePath, metadata: metadata })],
 			);
 
 			// Create an id for the image

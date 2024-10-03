@@ -1,20 +1,63 @@
-# Use the official Bun image
-FROM oven/bun:1 as base
+FROM node:20 AS base
 
-# Set the working directory in the container
-WORKDIR /usr/src/app
+LABEL version="0.0.1"
+LABEL name="rocco-api"
+LABEL description="rocco core api"
+LABEL maintainer="Chase Ponti <cj@ponti.io>"
+LABEL vendor="Ponti & Co, LLC"
 
-# Copy package.json and bun.lockb (if you're using one)
-COPY package.json bun.lockb* ./
+RUN apt-get update
 
-# Install dependencies
-RUN bun install
+# Required for Prisma
+RUN apt-get install -y openssl
 
-# Copy the rest of the application code
+
+# ------------------------------------------------------------------------------
+
+FROM base AS builder
+RUN apt-get update
+
+WORKDIR /app
+
+# Copy the lockfile, package files, and of the isolated subworkspace
 COPY . .
 
-# Expose the port the app runs on
-EXPOSE 3000
+# Install dependencies
+RUN npm install --frozen-lockfile --prefer-frozen-lockfile --ignore-scripts
 
-# Command to run the application
-CMD ["bun", "run", "dev"]
+# Set build-time environment variables
+ARG APP_URL
+ARG DATABASE_URL
+ARG NODE_ENV=production
+ARG COOKIE_SECRET
+ARG COOKIE_SALT
+ARG SENDGRID_API_KEY
+
+# Set runtime environment variables
+ENV APP_URL=${APP_URL}
+ENV DATABASE_URL=${DATABASE_URL}
+ENV NODE_ENV=${NODE_ENV}
+ENV COOKIE_SECRET=${COOKIE_SECRET}
+ENV COOKIE_SALT=${COOKIE_SALT}
+ENV SENDGRID_API_KEY=${SENDGRID_API_KEY}
+
+# Build the app
+RUN yarn build
+
+# ------------------------------------------------------------------------------
+
+FROM base as runner
+
+WORKDIR /app
+
+# Create a non-root user
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 rocco
+USER rocco
+
+COPY --from=builder --chown=rocco:nodejs /app/ .
+
+# Expose the port that the app listens on
+EXPOSE 4444
+
+CMD ["node", "apps/api/build/src/index.js"]

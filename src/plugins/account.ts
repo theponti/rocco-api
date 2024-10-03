@@ -1,7 +1,7 @@
 import { db } from "@app/db";
-import { account } from "@app/db/drizzle/schema";
+import { Account } from "@app/db/drizzle/schema";
 import { eq } from "drizzle-orm";
 
 export function getUserAccount(userId: string) {
-	return db.select().from(account).where(eq(account.userId, userId)).limit(1);
+	return db.select().from(Account).where(eq(Account.userId, userId)).limit(1);
 }

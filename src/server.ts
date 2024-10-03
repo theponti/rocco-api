@@ -61,7 +61,7 @@ export async function createServer(
 	await server.register(invites);
 	await server.register(bookmarksPlugin);
 	await server.register(ideasPlugin);
-	await server.register(require("fastify-multipart"));
+	await server.register(require("@fastify/multipart"));
 
 	server.setErrorHandler((error, request, reply) => {
 		console.error(error);

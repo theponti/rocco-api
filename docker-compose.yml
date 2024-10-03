@@ -27,7 +27,7 @@ services:
     image: chromadb/chroma:latest
     container_name: chroma-server
     volumes:
-      - chroma-data:/chroma/.chroma/index
+      - rocco:/chroma/.chroma/index 
     ports:
       - "8000:8000" # Expose ChromaDB on port 8000 on the host
     environment:
@@ -59,11 +59,14 @@ services:
       - .:/usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - "53421:3000"
+      - "3000:3000"
+      - "9229:9229"
     environment:
       - NODE_ENV=development
       - PORT=3000
-    command: bun run dev
+    env_file:
+      - .env
+    command: npm run dev
     networks:
       - rocco
     depends_on:
@@ -78,3 +81,4 @@ networks:
 
 volumes:
   rocco:
+  chroma-data:

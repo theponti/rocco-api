@@ -2,16 +2,21 @@ import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { ChromaClient } from "chromadb";
 
-export namespace HominemVectorStore {
-	export const chromaClient = new ChromaClient();
+export const CHROMA_URL = process.env.CHROMA_URL;
 
+export namespace HominemVectorStore {
+	const imageCollectionName = "images";
+	const documentCollectionName = "documents";
+
+	export const chromaClient = new ChromaClient();
+	
 	export const embeddings = new OpenAIEmbeddings({
 		model: "text-embedding-3-small",
 	});
 
 	export const imageVectorStore = new Chroma(embeddings, {
-		collectionName: "images",
-		url: process.env.CHROMA_URL,
+		collectionName: imageCollectionName,
+		url: CHROMA_URL,
 		// Optional: Used to specify the distance method of the embedding space.
 		// [Docs](https://docs.trychroma.com/usage-guide#changing-the-distance-function)
 		collectionMetadata: {
@@ -20,8 +25,8 @@ export namespace HominemVectorStore {
 	});
 
 	export const documentVectorStore = new Chroma(embeddings, {
-		collectionName: "documents",
-		url: process.env.CHROMA_URL,
+		collectionName: documentCollectionName,
+		url: CHROMA_URL,
 		// Optional: Used to specify the distance method of the embedding space.
 		// [Docs](https://docs.trychroma.com/usage-guide#changing-the-distance-function)
 		collectionMetadata: {
@@ -29,5 +34,9 @@ export namespace HominemVectorStore {
 		},
 	});
 
+	export const imageCollection = imageVectorStore.collection({ name: imageCollectionName });
+
+	export const documentCollection = documentVectorStore.collection({ name: documentCollectionName });
+	
 	export type VectorEmbeddings = OpenAIEmbeddings;
 }
