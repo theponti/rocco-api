@@ -1,6 +1,6 @@
+import { openaiModel } from '@app/lib/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
-import { ChatOpenAI } from '@langchain/openai'
-import { createStreamDataTransformer, type Message } from 'ai'
+import type { Message } from 'ai'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import { HttpResponseOutputParser } from 'langchain/output_parsers'
@@ -8,9 +8,12 @@ import { HttpResponseOutputParser } from 'langchain/output_parsers'
 // biome-ignore lint/complexity/noBannedTypes: <explanation>
 type ChatPluginOptions = {}
 
-const chatPlugin: FastifyPluginAsync<ChatPluginOptions> = async (fastify, options) => {
+const chatSingleResponsePlugin: FastifyPluginAsync<ChatPluginOptions> = async (
+  fastify,
+  options
+) => {
   fastify.post(
-    '/chat',
+    '/chat/single-response',
     {
       schema: {
         body: {
@@ -48,11 +51,9 @@ const chatPlugin: FastifyPluginAsync<ChatPluginOptions> = async (fastify, option
 
         const prompt = PromptTemplate.fromTemplate('{message}')
 
-        const model = new ChatOpenAI({})
-
         const parser = new HttpResponseOutputParser()
 
-        const chain = prompt.pipe(model).pipe(parser)
+        const chain = prompt.pipe(openaiModel).pipe(parser)
 
         const stream = await chain.stream({ message })
 
@@ -77,6 +78,4 @@ const chatPlugin: FastifyPluginAsync<ChatPluginOptions> = async (fastify, option
   )
 }
 
-export default fp(chatPlugin, {
-  name: 'chatPlugin',
-})
+export default fp(chatSingleResponsePlugin)
