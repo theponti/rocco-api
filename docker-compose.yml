@@ -1,4 +1,4 @@
-services:  
+services:
   postgres:
     image: postgres:latest
     container_name: postgres
@@ -55,9 +55,15 @@ services:
     build: 
       context: .
       dockerfile: Dockerfile.dev
-    volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+    develop:
+      watch:
+        - action: sync+restart
+          path: .
+          target: /usr/src/app
+          ignore:
+            - node_modules
+        - action: rebuild
+          path: ./package.json
     ports:
       - "3000:3000"
       - "9229:9229"

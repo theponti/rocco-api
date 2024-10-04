@@ -1,166 +1,183 @@
-import { relations } from "drizzle-orm/relations";
-import { user, account, bookmark, chat, chatMessage, flight, list, idea, item, token, movie, movieViewings, place, session, userLists, listInvite } from "./schema";
+import { relations } from 'drizzle-orm/relations'
+import {
+  Account,
+  Bookmark,
+  Chat,
+  ChatMessage,
+  Flight,
+  Idea,
+  Item,
+  List,
+  ListInvite,
+  Movie,
+  MovieViewings,
+  Place,
+  Session,
+  Token,
+  User,
+  UserLists,
+} from './schema'
 
-export const accountRelations = relations(account, ({one}) => ({
-	user: one(user, {
-		fields: [account.userId],
-		references: [user.id]
-	}),
-}));
+export const accountRelations = relations(Account, ({ one }) => ({
+  user: one(User, {
+    fields: [Account.userId],
+    references: [User.id],
+  }),
+}))
 
-export const userRelations = relations(user, ({many}) => ({
-	accounts: many(account),
-	bookmarks: many(bookmark),
-	chats: many(chat),
-	chatMessages: many(chatMessage),
-	flights: many(flight),
-	lists: many(list),
-	ideas: many(idea),
-	items: many(item),
-	tokens: many(token),
-	movieViewings: many(movieViewings),
-	places: many(place),
-	sessions: many(session),
-	userLists: many(userLists),
-	listInvites_invitedUserId: many(listInvite, {
-		relationName: "listInvite_invitedUserId_user_id"
-	}),
-	listInvites_userId: many(listInvite, {
-		relationName: "listInvite_userId_user_id"
-	}),
-}));
+export const userRelations = relations(User, ({ many }) => ({
+  accounts: many(Account),
+  bookmarks: many(Bookmark),
+  chats: many(Chat),
+  chatMessages: many(ChatMessage),
+  flights: many(Flight),
+  lists: many(List),
+  ideas: many(Idea),
+  items: many(Item),
+  tokens: many(Token),
+  movieViewings: many(MovieViewings),
+  places: many(Place),
+  sessions: many(Session),
+  userLists: many(UserLists),
+  listInvites_invitedUserId: many(ListInvite, {
+    relationName: 'listInvite_invitedUserId_user_id',
+  }),
+  listInvites_userId: many(ListInvite, {
+    relationName: 'listInvite_userId_user_id',
+  }),
+}))
 
-export const bookmarkRelations = relations(bookmark, ({one}) => ({
-	user: one(user, {
-		fields: [bookmark.userId],
-		references: [user.id]
-	}),
-}));
+export const bookmarkRelations = relations(Bookmark, ({ one }) => ({
+  user: one(User, {
+    fields: [Bookmark.userId],
+    references: [User.id],
+  }),
+}))
 
-export const chatRelations = relations(chat, ({one, many}) => ({
-	user: one(user, {
-		fields: [chat.userId],
-		references: [user.id]
-	}),
-	chatMessages: many(chatMessage),
-}));
+export const chatRelations = relations(Chat, ({ one, many }) => ({
+  user: one(User, {
+    fields: [Chat.userId],
+    references: [User.id],
+  }),
+  chatMessages: many(ChatMessage),
+}))
 
-export const chatMessageRelations = relations(chatMessage, ({one}) => ({
-	chat: one(chat, {
-		fields: [chatMessage.chatId],
-		references: [chat.id]
-	}),
-	user: one(user, {
-		fields: [chatMessage.userId],
-		references: [user.id]
-	}),
-}));
+export const chatMessageRelations = relations(ChatMessage, ({ one }) => ({
+  chat: one(Chat, {
+    fields: [ChatMessage.chatId],
+    references: [Chat.id],
+  }),
+  user: one(User, {
+    fields: [ChatMessage.userId],
+    references: [User.id],
+  }),
+}))
 
-export const flightRelations = relations(flight, ({one}) => ({
-	user: one(user, {
-		fields: [flight.userId],
-		references: [user.id]
-	}),
-	list: one(list, {
-		fields: [flight.listId],
-		references: [list.id]
-	}),
-}));
+export const flightRelations = relations(Flight, ({ one }) => ({
+  user: one(User, {
+    fields: [Flight.userId],
+    references: [User.id],
+  }),
+  list: one(List, {
+    fields: [Flight.listId],
+    references: [List.id],
+  }),
+}))
 
-export const listRelations = relations(list, ({one, many}) => ({
-	flights: many(flight),
-	user: one(user, {
-		fields: [list.userId],
-		references: [user.id]
-	}),
-	items: many(item),
-	userLists: many(userLists),
-	listInvites: many(listInvite),
-}));
+export const listRelations = relations(List, ({ one, many }) => ({
+  flights: many(Flight),
+  user: one(User, {
+    fields: [List.userId],
+    references: [User.id],
+  }),
+  items: many(Item),
+  userLists: many(UserLists),
+  listInvites: many(ListInvite),
+}))
 
-export const ideaRelations = relations(idea, ({one}) => ({
-	user: one(user, {
-		fields: [idea.userId],
-		references: [user.id]
-	}),
-}));
+export const ideaRelations = relations(Idea, ({ one }) => ({
+  user: one(User, {
+    fields: [Idea.userId],
+    references: [User.id],
+  }),
+}))
 
-export const itemRelations = relations(item, ({one, many}) => ({
-	list: one(list, {
-		fields: [item.listId],
-		references: [list.id]
-	}),
-	user: one(user, {
-		fields: [item.userId],
-		references: [user.id]
-	}),
-	places: many(place),
-}));
+export const itemRelations = relations(Item, ({ one, many }) => ({
+  list: one(List, {
+    fields: [Item.listId],
+    references: [List.id],
+  }),
+  user: one(User, {
+    fields: [Item.userId],
+    references: [User.id],
+  }),
+  places: many(Place),
+}))
 
-export const tokenRelations = relations(token, ({one}) => ({
-	user: one(user, {
-		fields: [token.userId],
-		references: [user.id]
-	}),
-}));
+export const tokenRelations = relations(Token, ({ one }) => ({
+  user: one(User, {
+    fields: [Token.userId],
+    references: [User.id],
+  }),
+}))
 
-export const movieViewingsRelations = relations(movieViewings, ({one}) => ({
-	movie: one(movie, {
-		fields: [movieViewings.movieId],
-		references: [movie.id]
-	}),
-	user: one(user, {
-		fields: [movieViewings.userId],
-		references: [user.id]
-	}),
-}));
+export const movieViewingsRelations = relations(MovieViewings, ({ one }) => ({
+  movie: one(Movie, {
+    fields: [MovieViewings.movieId],
+    references: [Movie.id],
+  }),
+  user: one(User, {
+    fields: [MovieViewings.userId],
+    references: [User.id],
+  }),
+}))
 
-export const movieRelations = relations(movie, ({many}) => ({
-	movieViewings: many(movieViewings),
-}));
+export const movieRelations = relations(Movie, ({ many }) => ({
+  movieViewings: many(MovieViewings),
+}))
 
-export const placeRelations = relations(place, ({one}) => ({
-	user: one(user, {
-		fields: [place.userId],
-		references: [user.id]
-	}),
-	item: one(item, {
-		fields: [place.itemId],
-		references: [item.id]
-	}),
-}));
+export const placeRelations = relations(Place, ({ one }) => ({
+  user: one(User, {
+    fields: [Place.userId],
+    references: [User.id],
+  }),
+  item: one(Item, {
+    fields: [Place.itemId],
+    references: [Item.id],
+  }),
+}))
 
-export const sessionRelations = relations(session, ({one}) => ({
-	user: one(user, {
-		fields: [session.userId],
-		references: [user.id]
-	}),
-}));
+export const sessionRelations = relations(Session, ({ one }) => ({
+  user: one(User, {
+    fields: [Session.userId],
+    references: [User.id],
+  }),
+}))
 
-export const userListsRelations = relations(userLists, ({one}) => ({
-	list: one(list, {
-		fields: [userLists.listId],
-		references: [list.id]
-	}),
-	user: one(user, {
-		fields: [userLists.userId],
-		references: [user.id]
-	}),
-}));
+export const userListsRelations = relations(UserLists, ({ one }) => ({
+  list: one(List, {
+    fields: [UserLists.listId],
+    references: [List.id],
+  }),
+  user: one(User, {
+    fields: [UserLists.userId],
+    references: [User.id],
+  }),
+}))
 
-export const listInviteRelations = relations(listInvite, ({one}) => ({
-	list: one(list, {
-		fields: [listInvite.listId],
-		references: [list.id]
-	}),
-	user_invitedUserId: one(user, {
-		fields: [listInvite.invitedUserId],
-		references: [user.id],
-		relationName: "listInvite_invitedUserId_user_id"
-	}),
-	user_userId: one(user, {
-		fields: [listInvite.userId],
-		references: [user.id],
-		relationName: "listInvite_userId_user_id"
-	}),
-}));
+export const listInviteRelations = relations(ListInvite, ({ one }) => ({
+  list: one(List, {
+    fields: [ListInvite.listId],
+    references: [List.id],
+  }),
+  user_invitedUserId: one(User, {
+    fields: [ListInvite.invitedUserId],
+    references: [User.id],
+    relationName: 'listInvite_invitedUserId_user_id',
+  }),
+  user_userId: one(User, {
+    fields: [ListInvite.userId],
+    references: [User.id],
+    relationName: 'listInvite_userId_user_id',
+  }),
+}))

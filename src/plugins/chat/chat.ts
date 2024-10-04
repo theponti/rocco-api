@@ -5,10 +5,7 @@ import { ChatOpenAI } from '@langchain/openai'
 import { eq } from 'drizzle-orm'
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify'
 import fp from 'fastify-plugin'
-import { HttpResponseOutputParser, JsonOutputFunctionsParser } from 'langchain/output_parsers'
-import { z } from 'zod'
-import zodToJsonSchema from 'zod-to-json-schema'
-import { verifySession } from '../auth/utils'
+import { HttpResponseOutputParser } from 'langchain/output_parsers'
 
 const formatMessage = (message: { role: string; content: string }) => {
   return `${message.role}: ${message.content}`
