@@ -23,6 +23,7 @@ import usersPlugin from './plugins/user'
 const { APP_URL, JWT_SECRET, PORT } = process.env
 
 assert(APP_URL, 'Missing APP_URL env var')
+assert(JWT_SECRET, 'Missing JWT_SECRET env var')
 
 export async function createServer(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const server = fastify(opts)
