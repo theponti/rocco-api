@@ -2,20 +2,14 @@ import { HominemVectorStore } from '@app/lib/chromadb.js'
 import { embedder } from '@app/lib/embeddings'
 import { supabaseClient } from '@app/lib/supabase.js'
 import { OpenAIEmbeddings } from '@langchain/openai'
-import { pipeline } from '@xenova/transformers'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import multer from 'multer'
 
-
 // Save newly uploaded images to the data directory
 const upload = multer({ dest: 'data/' }).array('images')
 
-
 export const imagePlugin: FastifyPluginAsync = async (server) => {
-  // Initialize CLIP model
-  const clipModel = await pipeline('feature-extraction', 'Xenova/clip-vit-base-patch32')
-
   server.post('/upload-photo', async (request, reply) => {
     const data = await request.file()
     if (!data) {
@@ -26,9 +20,7 @@ export const imagePlugin: FastifyPluginAsync = async (server) => {
     const [embedding, uploadResponse] = await Promise.all([
       embedder.embedFromBuffer(buffer),
 
-    supabaseClient.storage
-      .from('photos')
-      .upload(`${Date.now()}-${data.filename}`, buffer)
+      supabaseClient.storage.from('photos').upload(`${Date.now()}-${data.filename}`, buffer),
     ])
 
     const { data: uploadData, error: uploadError } = uploadResponse
@@ -105,7 +97,7 @@ export const imagePlugin: FastifyPluginAsync = async (server) => {
   })
 
   server.delete('/ai/images/delete', async (req, res) => {
-    const { imagePath } = req.params as { imagePath: string } 
+    const { imagePath } = req.params as { imagePath: string }
 
     try {
       await supabaseClient.from('photos').delete().eq('filename', imagePath)

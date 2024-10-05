@@ -1,1 +1,1 @@
-export const tracingIgnoreRoutes = ["/favicon.ico"];
+export const tracingIgnoreRoutes = ['/favicon.ico']

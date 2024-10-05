@@ -1,152 +1,100 @@
-import { Document } from "@langchain/core/documents";
-import {
-	AutoModel,
-	AutoProcessor,
-	AutoTokenizer,
-	RawImage,
-	type PreTrainedModel,
-	type PreTrainedTokenizer,
-	type Processor,
-	type Tensor,
-} from "@xenova/transformers";
-import { createHash } from "node:crypto";
-
-import { HominemVectorStore } from "@app/lib/chromadb.js";
+import { HominemVectorStore } from '@app/lib/chromadb'
+import { Document } from '@langchain/core/documents'
+import { createHash } from 'node:crypto'
+import fs from 'node:fs/promises'
 
 class Embedder {
-	private processor?: Processor;
+  private embeddings: HominemVectorStore.VectorEmbeddings
 
-	private model?: PreTrainedModel;
+  constructor() {
+    this.embeddings = HominemVectorStore.embeddings
+  }
 
-	private tokenizer?: PreTrainedTokenizer;
+  async getImageEmbedding(image: File): Promise<number[]> {
+    try {
+      const buffer = await image.arrayBuffer()
+      const base64 = Buffer.from(buffer).toString('base64')
+      const embeddingResponse = await this.embeddings.embedQuery(base64)
+      return embeddingResponse
+    } catch (e) {
+      console.log(`Error embedding image, ${e}`)
+      throw e
+    }
+  }
 
-	async init(modelName: string) {
-		// Load the model, tokenizer and processor
-		this.model = await AutoModel.from_pretrained(modelName);
-		this.tokenizer = await AutoTokenizer.from_pretrained(modelName);
-		this.processor = await AutoProcessor.from_pretrained(modelName);
-	}
+  async getEmbeddingsFromImage(imagePath: string): Promise<number[]> {
+    try {
+      const imageBuffer = await fs.readFile(imagePath)
+      const base64 = imageBuffer.toString('base64')
+      const embeddingResponse = await this.embeddings.embedQuery(base64)
+      return embeddingResponse
+    } catch (e) {
+      console.log(`Error embedding image, ${e}`)
+      throw e
+    }
+  }
 
-	async getImageEmbedding(image: File): Promise<number[]> {
-		if (!this.model || !this.tokenizer || !this.processor) {
-			throw new Error("Model not initialized");
-		}
-		try {
-			// Prepare the image and text inputs
-			const image_inputs = await this.processor(image);
-			const text_inputs = this.tokenizer([""], {
-				padding: true,
-				truncation: true,
-			});
-			// Embed the image
-			const output = await this.model({ ...text_inputs, ...image_inputs });
-			const { image_embeds }: { image_embeds: Tensor } = output;
-			const { data: embeddings } = image_embeds;
+  async embedFromBuffer(buffer: Buffer): Promise<{
+    id: string
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    metadata: { [key: string]: any }
+    values: number[]
+  }> {
+    try {
+      const base64 = buffer.toString('base64')
+      const embeddings = await this.embeddings.embedQuery(base64)
 
-			return Array.from(embeddings) as number[];
-		} catch (e) {
-			console.log(`Error embedding image, ${e}`);
-			throw e;
-		}
-	}
+      await HominemVectorStore.imageVectorStore.addVectors(
+        [embeddings],
+        [new Document({ pageContent: buffer.toString('base64'), metadata: {} })]
+      )
 
-	async getEmbeddingsFromImage(image: RawImage): Promise<number[]> {
-		if (!this.model || !this.tokenizer || !this.processor) {
-			throw new Error("Model not initialized");
-		}
+      const id = createHash('md5').update(buffer.toString('base64')).digest('hex')
 
-		try {
-			// Prepare the image and text inputs
-			const image_inputs = await this.processor(image);
-			const text_inputs = this.tokenizer([""], {
-				padding: true,
-				truncation: true,
-			});
-			// Embed the image
-			const output = await this.model({ ...text_inputs, ...image_inputs });
-			const { image_embeds }: { image_embeds: Tensor } = output;
-			const { data: embeddings } = image_embeds;
+      return {
+        id,
+        metadata: {},
+        values: embeddings,
+      }
+    } catch (e) {
+      console.log(`Error embedding image, ${e}`)
+      throw e
+    }
+  }
 
-			return Array.from(embeddings) as number[];
-		} catch (e) {
-			console.log(`Error embedding image, ${e}`);
-			throw e;
-		}
-	}
+  async embed(
+    imagePath: string,
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    metadata?: { [key: string]: any }
+  ): Promise<{
+    id: string
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
+    metadata: { [key: string]: any }
+    values: number[]
+  }> {
+    try {
+      const embeddings = await this.getEmbeddingsFromImage(imagePath)
 
-	async embedFromBuffer(buffer: Buffer): Promise<{
-		id: string;
-		metadata: { [key: string]: any };
-		values: number[];
-	}> {
-		if (!this.model || !this.tokenizer || !this.processor) {
-			throw new Error("Model not initialized");
-		}
+      await HominemVectorStore.imageVectorStore.addVectors(
+        [embeddings],
+        [new Document({ pageContent: imagePath, metadata: metadata })]
+      )
 
-		try {
-			// Load the image
-			const image = await RawImage.fromBlob(new Blob([buffer]));
-			const embeddings = await this.getEmbeddingsFromImage(image);
+      const id = createHash('md5').update(imagePath).digest('hex')
 
-			await HominemVectorStore.imageVectorStore.addVectors(
-				[embeddings] as number[][],
-				[new Document({ pageContent: buffer.toString(), metadata: {} })],
-			);
-
-			// Create an id for the image
-			const id = createHash("md5").update(buffer.toString()).digest("hex");
-
-			// Return the embedding in a format ready for Pinecone
-			return {
-				id,
-				metadata: {},
-				values: Array.from(embeddings) as number[],
-			};
-		} catch (e) {
-			console.log(`Error embedding image, ${e}`);
-			throw e;
-		}
-	}
-
-	async embed(
-		imagePath: string,
-		metadata?: { [key: string]: any },
-	): Promise<{
-		id: string;
-		metadata: { [key: string]: any };
-		values: number[];
-	}> {
-		if (!this.model || !this.tokenizer || !this.processor) {
-			throw new Error("Model not initialized");
-		}
-
-		try {
-			// Load the image
-			const image = await RawImage.read(imagePath);
-			const embeddings = await this.getEmbeddingsFromImage(image);
-
-			await HominemVectorStore.imageVectorStore.addVectors(
-				[embeddings] as number[][],
-				[new Document({ pageContent: imagePath, metadata: metadata })],
-			);
-
-			// Create an id for the image
-			const id = createHash("md5").update(imagePath).digest("hex");
-
-			// Return the embedding in a format ready for Pinecone
-			return {
-				id,
-				metadata: metadata || {
-					imagePath,
-				},
-				values: Array.from(embeddings) as number[],
-			};
-		} catch (e) {
-			console.log(`Error embedding image, ${e}`);
-			throw e;
-		}
-	}
+      return {
+        id,
+        metadata: metadata || {
+          imagePath,
+        },
+        values: embeddings,
+      }
+    } catch (e) {
+      console.log(`Error embedding image, ${e}`)
+      throw e
+    }
+  }
 }
 
-const embedder = new Embedder();
-export { embedder };
+const embedder = new Embedder()
+export { embedder }

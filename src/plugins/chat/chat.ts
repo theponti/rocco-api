@@ -6,6 +6,7 @@ import { eq } from 'drizzle-orm'
 import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify'
 import fp from 'fastify-plugin'
 import { HttpResponseOutputParser } from 'langchain/output_parsers'
+import { verifySession } from '../auth/utils'
 
 const formatMessage = (message: { role: string; content: string }) => {
   return `${message.role}: ${message.content}`
@@ -40,95 +41,105 @@ The field "entity" refers to the first mentioned entity in the input.
 `
 
 const chatPlugin: FastifyPluginAsync = async (fastify) => {
-  fastify.post('/chat', async (request: FastifyRequest, reply: FastifyReply) => {
-    const session = await request.session // Assuming you have session handling middleware
+  fastify.post(
+    '/chat',
+    {
+      preValidation: verifySession,
+    },
+    async (request: FastifyRequest, reply: FastifyReply) => {
+      const { userId } = request.session
 
-    if (!session || !session.user) {
-      return reply.code(401).send({ error: 'Unauthorized' })
-    }
-
-    try {
-      let chat = null
-      const activeChatId = request.cookies.activeChat
-
-      if (activeChatId) {
-        chat = await db
-          .select()
-          .from(Chat)
-          .where(eq(Chat.id, activeChatId))
-          .limit(1)
-          .then(takeUniqueOrThrow)
-      } else {
-        chat = await db
-          .insert(Chat)
-          .values({
-            title: 'Basic Chat',
-            userId: session.user.id,
-          })
-          .returning()
-          .then(takeUniqueOrThrow)
-        reply.setCookie('activeChat', chat.id)
+      if (!userId) {
+        return reply.code(401).send({ error: 'Unauthorized' })
       }
 
-      if (!chat) {
-        return reply.code(404).send({ error: 'Chat not found' })
-      }
+      try {
+        let chat = null
+        const activeChatId = request.cookies.activeChat
 
-      const messages = await db.select().from(ChatMessage).where(eq(ChatMessage.chatId, chat.id))
+        if (activeChatId) {
+          chat = await db
+            .select()
+            .from(Chat)
+            .where(eq(Chat.id, activeChatId))
+            .limit(1)
+            .then(takeUniqueOrThrow)
+        } else {
+          chat = await db
+            .insert(Chat)
+            .values({
+              title: 'Basic Chat',
+              userId,
+            })
+            .returning()
+            .then(takeUniqueOrThrow)
+          reply.setCookie('activeChat', chat.id)
+        }
 
-      const { message } = request.body as { message: string }
+        if (!chat) {
+          return reply.code(404).send({ error: 'Chat not found' })
+        }
 
-      const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage)
-      const prompt = PromptTemplate.fromTemplate(TEMPLATE)
-      const model = new ChatOpenAI({
-        streaming: false,
-      })
+        const messages = await db.select().from(ChatMessage).where(eq(ChatMessage.chatId, chat.id))
 
-      const result = await prompt
-        .pipe(model)
-        .pipe(new HttpResponseOutputParser())
-        .invoke({
-          chat_history: formattedPreviousMessages.join('\n'),
-          input: message,
+        const { message } = request.body as { message: string }
+
+        const formattedPreviousMessages = messages.slice(0, -1).map(formatMessage)
+        const prompt = PromptTemplate.fromTemplate(TEMPLATE)
+        const model = new ChatOpenAI({
+          streaming: false,
         })
 
-      const formattedBufferResult = Buffer.from(result).toString('utf-8')
+        const result = await prompt
+          .pipe(model)
+          .pipe(new HttpResponseOutputParser())
+          .invoke({
+            chat_history: formattedPreviousMessages.join('\n'),
+            input: message,
+          })
 
-      const newMessages = await db.transaction(async (t) => {
-        return [
-          // Insert user message
-          await t
-            .insert(ChatMessage)
-            .values({
-              userId: session.user.id,
-              chatId: chat.id,
-              role: 'user',
-              content: message,
-            })
-            .returning()
-            .then(takeUniqueOrThrow),
-          // Insert assistant message
-          await t
-            .insert(ChatMessage)
-            .values({
-              userId: session.user.id,
-              chatId: chat.id,
-              role: 'assistant',
-              content: formattedBufferResult,
-            })
-            .returning()
-            .then(takeUniqueOrThrow),
-        ]
-      })
+        const formattedBufferResult = Buffer.from(result).toString('utf-8')
 
-      return reply.send({
-        messages: messages.concat(newMessages),
-      })
-    } catch (e) {
-      fastify.log.error(e)
-      return reply.code(500).send({ error: 'Internal Server Error' })
+        const newMessages = await db.transaction(async (t) => {
+          if (!userId) {
+            return []
+          }
+
+          return [
+            // Insert user message
+            await t
+              .insert(ChatMessage)
+              .values({
+                userId,
+                chatId: chat.id,
+                role: 'user',
+                content: message,
+              })
+              .returning()
+              .then(takeUniqueOrThrow),
+            // Insert assistant message
+            await t
+              .insert(ChatMessage)
+              .values({
+                userId,
+                chatId: chat.id,
+                role: 'assistant',
+                content: formattedBufferResult,
+              })
+              .returning()
+              .then(takeUniqueOrThrow),
+          ]
+        })
+
+        return reply.send({
+          messages: messages.concat(newMessages),
+        })
+      } catch (e) {
+        fastify.log.error(e)
+        return reply.code(500).send({ error: 'Internal Server Error' })
+      }
     }
-  })
+  )
 }
 
 export default fp(chatPlugin, {
