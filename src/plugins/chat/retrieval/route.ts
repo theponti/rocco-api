@@ -72,7 +72,7 @@ const retrievalHandler: FastifyPluginAsync = async (server) => {
       const currentMessageContent = messages[messages.length - 1].content
 
       const model = new ChatOpenAI({
-        modelName: 'gpt-3.5-turbo-1106',
+        model: 'gpt-4o-mini',
         temperature: 0.2,
       })
 

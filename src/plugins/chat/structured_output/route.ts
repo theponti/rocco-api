@@ -40,7 +40,7 @@ export const structuredOutputPlugin: FastifyPluginAsync = async (fastify) => {
 
       const model = new ChatOpenAI({
         temperature: 0.8,
-        modelName: 'gpt-3.5-turbo-1106',
+        model: 'gpt-4o-mini',
       })
 
       const schema = z.object({
