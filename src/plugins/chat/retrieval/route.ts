@@ -1,12 +1,13 @@
+import { supabaseClient } from '@app/lib/supabase'
 import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase'
-import { Document } from '@langchain/core/documents'
+import type { Document } from '@langchain/core/documents'
 import { BytesOutputParser, StringOutputParser } from '@langchain/core/output_parsers'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { RunnableSequence } from '@langchain/core/runnables'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
 import { createClient } from '@supabase/supabase-js'
-import { StreamingTextResponse, Message as VercelChatMessage } from 'ai'
-import { FastifyPluginAsync } from 'fastify'
+import type { StreamingTextResponse, Message as VercelChatMessage } from 'ai'
+import type { FastifyPluginAsync } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 
 const combineDocumentsFn = (docs: Document[]) => {
@@ -18,12 +19,15 @@ const formatVercelMessages = (chatHistory: VercelChatMessage[]) => {
   const formattedDialogueTurns = chatHistory.map((message) => {
     if (message.role === 'user') {
       return `Human: ${message.content}`
-    } else if (message.role === 'assistant') {
-      return `Assistant: ${message.content}`
-    } else {
-      return `${message.role}: ${message.content}`
     }
+
+    if (message.role === 'assistant') {
+      return `Assistant: ${message.content}`
+    }
+
+    return `${message.role}: ${message.content}`
   })
+
   return formattedDialogueTurns.join('\n')
 }
 
@@ -72,9 +76,8 @@ const retrievalHandler: FastifyPluginAsync = async (server) => {
         temperature: 0.2,
       })
 
-      const client = createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PRIVATE_KEY!)
       const vectorstore = new SupabaseVectorStore(new OpenAIEmbeddings(), {
-        client,
+        client: supabaseClient,
         tableName: 'documents',
         queryName: 'match_documents',
       })
@@ -140,7 +143,7 @@ const retrievalHandler: FastifyPluginAsync = async (server) => {
         JSON.stringify(
           documents.map((doc) => {
             return {
-              pageContent: doc.pageContent.slice(0, 50) + '...',
+              pageContent: `${doc.pageContent.slice(0, 50)}...`,
               metadata: doc.metadata,
             }
           })

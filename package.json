@@ -12,9 +12,9 @@
     "lint": "biome lint ./src",
     "start": "node build/src/index",
     "start:ts": "ts-node -r tsconfig-paths/register --project ./tsconfig.json --transpile-only src/index | pino-pretty",
-    "test": "NODE_ENV=test nx vite:test --run --coverage",
-    "test:coverage": "NODE_ENV=test nx vite:test --run --coverage",
-    "test:watch": "NODE_ENV=test nx vite:test",
+    "test": "NODE_ENV=test vitest --run --coverage",
+    "test:coverage": "NODE_ENV=test vitest --run --coverage",
+    "test:watch": "NODE_ENV=test nx vitest",
     "typecheck": "tsc --noEmit --incremental false"
   },
   "dependencies": {
@@ -62,12 +62,13 @@
     "@types/multer": "^1.4.11",
     "@types/node": "^20.4.5",
     "@types/pg": "^8.11.6",
+    "@vitest/coverage-v8": "^2.1.2",
     "drizzle-kit": "^0.24.0",
     "nodemon": "^3.0.1",
     "ts-node": "10.4.0",
     "tsconfig-paths": "^4.2.0",
     "typescript": "5.4.3",
     "vite-tsconfig-paths": "^5.0.1",
-    "vitest": "^1.4.0"
+    "vitest": "^2.1.2"
   }
 }
