@@ -10,6 +10,10 @@ describe('server', () => {
   })
 
   afterAll(async () => {
+    if (!testServer) {
+      return
+    }
+
     await testServer.close()
   })
 

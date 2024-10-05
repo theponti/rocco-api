@@ -1,12 +1,13 @@
 import dotenv from 'dotenv'
+import assert from 'node:assert'
 dotenv.config()
 
 import fastify, { type FastifyInstance, type FastifyServerOptions } from 'fastify'
-
 import { PgPlugin } from './db'
 import adminPlugin from './plugins/admin'
 import authPlugin from './plugins/auth'
 import bookmarksPlugin from './plugins/bookmarks'
+import chatSingleResponsePlugin from './plugins/chat/single-response'
 import circuitBreaker from './plugins/circuit-breaker'
 import emailPlugin from './plugins/email'
 import ideasPlugin from './plugins/ideas'
@@ -19,18 +20,12 @@ import shutdownPlugin from './plugins/shutdown'
 import statusPlugin from './plugins/status'
 import usersPlugin from './plugins/user'
 
-// chat
-import chatSingleResponsePlugin from './plugins/chat/single-response'
-
 const { APP_URL, JWT_SECRET, PORT } = process.env
+
+assert(APP_URL, 'Missing APP_URL env var')
 
 export async function createServer(opts: FastifyServerOptions = {}): Promise<FastifyInstance> {
   const server = fastify(opts)
-
-  if (!APP_URL) {
-    server.log.error('Missing APP_URL env var')
-    process.exit(1)
-  }
 
   await server.register(require('@fastify/cors'), {
     origin: [APP_URL],
