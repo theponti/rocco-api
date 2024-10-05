@@ -1,4 +1,4 @@
-FROM node:20 AS base
+FROM node:20-slim AS base
 
 LABEL version="0.0.1"
 LABEL name="rocco-api"
@@ -6,26 +6,20 @@ LABEL description="rocco core api"
 LABEL maintainer="Chase Ponti <cj@ponti.io>"
 LABEL vendor="Ponti & Co, LLC"
 
-RUN apt-get update
+RUN apt-get update && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
 
-# Required for Prisma
-RUN apt-get install -y openssl
-
-
-# ------------------------------------------------------------------------------
-
-FROM base AS builder
-RUN apt-get update
-
+FROM base AS deps
 WORKDIR /app
 
-# Copy the lockfile, package files, and of the isolated subworkspace
+COPY package*.json yarn.lock ./
+RUN yarn install --frozen-lockfile
+
+FROM base AS builder
+WORKDIR /app
+
+COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Install dependencies
-RUN npm install --frozen-lockfile --prefer-frozen-lockfile --ignore-scripts
-
-# Set build-time environment variables
 ARG APP_URL
 ARG DATABASE_URL
 ARG NODE_ENV=production
@@ -33,31 +27,29 @@ ARG COOKIE_SECRET
 ARG COOKIE_SALT
 ARG SENDGRID_API_KEY
 
-# Set runtime environment variables
-ENV APP_URL=${APP_URL}
-ENV DATABASE_URL=${DATABASE_URL}
-ENV NODE_ENV=${NODE_ENV}
-ENV COOKIE_SECRET=${COOKIE_SECRET}
-ENV COOKIE_SALT=${COOKIE_SALT}
-ENV SENDGRID_API_KEY=${SENDGRID_API_KEY}
+ENV APP_URL=${APP_URL} \
+    DATABASE_URL=${DATABASE_URL} \
+    NODE_ENV=${NODE_ENV} \
+    COOKIE_SECRET=${COOKIE_SECRET} \
+    COOKIE_SALT=${COOKIE_SALT} \
+    SENDGRID_API_KEY=${SENDGRID_API_KEY}
 
-# Build the app
 RUN yarn build
 
-# ------------------------------------------------------------------------------
-
-FROM base as runner
-
+FROM base AS runner
 WORKDIR /app
 
-# Create a non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 rocco
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 rocco
+
 USER rocco
 
 COPY --from=builder --chown=rocco:nodejs /app/ .
 
-# Expose the port that the app listens on
-EXPOSE 4444
+# Export application port
+EXPOSE 3000
+
+# Export debug port
+EXPOSE 9292
 
 CMD ["node", "apps/api/build/src/index.js"]

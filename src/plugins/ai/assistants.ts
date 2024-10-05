@@ -13,6 +13,7 @@ const search_tasks = (query: string) => ({ message: `Searched for tasks with que
 const chat = (message: string) => ({ message: `Chat response: ${message}` })
 
 // Single function that encapsulates all other functions
+// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 const execute_actions = (actions: any[]) => {
   return actions.map(({ action, params }) => {
     switch (action) {
@@ -87,7 +88,7 @@ const assistantPlugin: FastifyPluginAsync = async (fastify) => {
 
     try {
       const completion = await openaiClient.chat.completions.create({
-        model: 'gpt-3.5-turbo-0613',
+        model: 'gpt-4o-mini',
         messages: [{ role: 'user', content: input }],
         functions: [function_definition],
         function_call: { name: 'execute_actions' },
@@ -97,6 +98,7 @@ const assistantPlugin: FastifyPluginAsync = async (fastify) => {
 
       if (responseMessage.tool_calls) {
         const { actions } = JSON.parse(responseMessage.tool_calls[0].function.arguments) as {
+          // biome-ignore lint/suspicious/noExplicitAny: <explanation>
           actions: any[]
         }
 
@@ -104,7 +106,7 @@ const assistantPlugin: FastifyPluginAsync = async (fastify) => {
 
         // Get a suitable response for the user based on the function results
         const finalResponse = await openaiClient.chat.completions.create({
-          model: 'gpt-3.5-turbo-0613',
+          model: 'gpt-4o-mini',
           messages: [
             { role: 'user', content: input },
             responseMessage,
@@ -117,10 +119,10 @@ const assistantPlugin: FastifyPluginAsync = async (fastify) => {
         })
 
         return finalResponse.choices[0].message.content
-      } else {
-        // If no function was called, return the assistant's response directly
-        return responseMessage.content
       }
+
+      // If no function was called, return the assistant's response directly
+      return responseMessage.content
     } catch (error) {
       console.error('Error:', error)
       reply.code(500).send({ error: 'An error occurred while processing your request.' })

@@ -59,11 +59,11 @@ services:
       watch:
         - action: sync+restart
           path: .
-          target: /usr/src/app
+          target: /app
           ignore:
-            - node_modules
+            - node_modules/
         - action: rebuild
-          path: ./package.json
+          path: package.json
     ports:
       - "3000:3000"
       - "9229:9229"
@@ -72,6 +72,8 @@ services:
       - PORT=3000
     env_file:
       - .env
+    volumes:
+      - /app/node_modules
     command: npm run dev
     networks:
       - rocco

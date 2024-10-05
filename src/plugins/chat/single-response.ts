@@ -4,6 +4,7 @@ import type { Message } from 'ai'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import { HttpResponseOutputParser } from 'langchain/output_parsers'
+import { verifySession } from '../auth/utils'
 
 // biome-ignore lint/complexity/noBannedTypes: <explanation>
 type ChatPluginOptions = {}
@@ -15,6 +16,7 @@ const chatSingleResponsePlugin: FastifyPluginAsync<ChatPluginOptions> = async (
   fastify.post(
     '/chat/single-response',
     {
+      preValidation: verifySession,
       schema: {
         body: {
           type: 'object',
@@ -34,14 +36,16 @@ const chatSingleResponsePlugin: FastifyPluginAsync<ChatPluginOptions> = async (
       },
     },
     async (request, reply) => {
-      const session = request.session.get('data')
+      // const session = request.session.get('data')
 
-      if (!session) {
-        return reply.code(401).send({ error: 'Unauthorized' })
-      }
+      // if (!session) {
+      //   return reply.code(401).send({ error: 'Unauthorized' })
+      // }
 
       try {
         const { messages } = request.body as { messages: Message[] }
+
+        console.log('data', messages)
 
         const message = messages.at(-1)?.content
 

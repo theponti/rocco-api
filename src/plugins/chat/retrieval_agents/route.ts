@@ -44,7 +44,7 @@ const retrievalAgentPlugin: FastifyPluginAsync = async (fastify) => {
       const currentMessageContent = messages[messages.length - 1].content
 
       const chatModel = new ChatOpenAI({
-        modelName: 'gpt-3.5-turbo-1106',
+        model: 'gpt-4o-mini',
         temperature: 0.2,
         // IMPORTANT: Must "streaming: true" on OpenAI to enable final output streaming below.
         streaming: true,

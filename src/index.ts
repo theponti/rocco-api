@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
-dotenv.config();
+import dotenv from 'dotenv'
+dotenv.config()
 
-import "@total-typescript/ts-reset";
-import { startServer } from "./server";
+import '@total-typescript/ts-reset'
+import { startServer } from './server'
 
-startServer();
+startServer()
