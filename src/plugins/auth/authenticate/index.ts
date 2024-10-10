@@ -153,9 +153,7 @@ const authenticatePlugin: FastifyPluginAsync = async (server) => {
 
       track(userId, EVENTS.USER_EVENTS.LOGIN_SUCCESS, { isAdmin })
 
-      request.session.set('isAdmin', isAdmin)
-      request.session.set('name', name)
-      request.session.set('userId', userId)
+      request.session.set('data', responseUser)
 
       return reply
         .code(200)

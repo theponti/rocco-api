@@ -1,4 +1,5 @@
 import { HominemVectorStore } from '@app/lib/chromadb'
+import logger from '@app/logger'
 import { Document } from '@langchain/core/documents'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs/promises'
@@ -17,7 +18,7 @@ class Embedder {
       const embeddingResponse = await this.embeddings.embedQuery(base64)
       return embeddingResponse
     } catch (e) {
-      console.log(`Error embedding image, ${e}`)
+      logger.error(`Error embedding image, ${e}`)
       throw e
     }
   }
@@ -29,7 +30,7 @@ class Embedder {
       const embeddingResponse = await this.embeddings.embedQuery(base64)
       return embeddingResponse
     } catch (e) {
-      console.log(`Error embedding image, ${e}`)
+      logger.error(`Error embedding image, ${e}`)
       throw e
     }
   }
@@ -57,7 +58,7 @@ class Embedder {
         values: embeddings,
       }
     } catch (e) {
-      console.log(`Error embedding image, ${e}`)
+      logger.error(`Error embedding image, ${e}`)
       throw e
     }
   }
@@ -90,7 +91,7 @@ class Embedder {
         values: embeddings,
       }
     } catch (e) {
-      console.log(`Error embedding image, ${e}`)
+      logger.error(`Error embedding image, ${e}`)
       throw e
     }
   }

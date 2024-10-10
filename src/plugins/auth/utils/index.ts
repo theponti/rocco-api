@@ -39,7 +39,7 @@ export const verifySession: preValidationHookHandler = async (
   request: FastifyRequest,
   reply: FastifyReply
 ) => {
-  const { userId, name, isAdmin } = request.session
+  const { userId } = request.session.get('data') ?? {}
   let user: typeof User.$inferSelect
 
   /**
@@ -79,13 +79,18 @@ export const verifySession: preValidationHookHandler = async (
       if (!user) {
         return reply.code(401).send()
       }
+
+      request.user = user
     } catch (e) {
       reply.log.error('Could not verify session', e)
       return reply.code(401).send()
     }
 
-    request.session.set('userId', token.userId)
-    request.session.set('name', user.name)
-    request.session.set('isAdmin', user.isAdmin)
+    request.session.set('data', {
+      userId: token.userId,
+      name: user.name,
+      isAdmin: user.isAdmin,
+      roles: [],
+    })
   }
 }

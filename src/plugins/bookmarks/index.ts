@@ -1,10 +1,11 @@
-import { Bookmark } from '@app/db/drizzle/schema'
 import { db } from '@app/db'
-import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import { Bookmark } from '@app/db/drizzle/schema'
 import { and, desc, eq } from 'drizzle-orm'
+import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 
-import { convertOGContentToBookmark, getOpenGraphData } from './utils'
+import type { RequestWithSession } from '@app/typings'
 import { verifySession } from '../auth/utils'
+import { convertOGContentToBookmark, getOpenGraphData } from './utils'
 
 type LinkType = {
   image: string
@@ -49,6 +50,7 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
   server.get(
     '/bookmarks',
     {
+      preValidation: verifySession,
       schema: {
         response: {
           200: {
@@ -58,12 +60,8 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: RequestWithSession, reply) => {
       const session = request.session.get('data')
-
-      if (!session) {
-        return reply.code(401).send()
-      }
 
       const bookmarks = await db
         .select()
@@ -78,6 +76,7 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
   server.post(
     '/bookmarks',
     {
+      preValidation: verifySession,
       schema: {
         body: {
           type: 'object',
@@ -91,7 +90,7 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: RequestWithSession, reply) => {
       const { url } = request.body as { url: string }
       const { userId } = request.session.get('data')
 
@@ -116,6 +115,7 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
   server.put(
     '/bookmarks/:id',
     {
+      preValidation: verifySession,
       schema: {
         params: {
           type: 'object',
@@ -136,7 +136,7 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: RequestWithSession, reply) => {
       const { id } = request.params as { id: string }
       const { url } = request.body as { url: string }
       const { userId } = request.session.get('data')
@@ -176,7 +176,7 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: RequestWithSession, reply) => {
       const { id } = request.params as { id: string }
       const { userId } = request.session.get('data')
 

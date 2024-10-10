@@ -1,21 +1,27 @@
+import { eq } from 'drizzle-orm'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 
 import { db } from '@app/db'
-import { verifySession } from './auth/utils'
 import { User } from '@app/db/drizzle/schema'
-import { eq } from 'drizzle-orm'
+import type { RequestWithSession } from '@app/typings'
+import { verifySession } from './auth/utils'
 
 const usersPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
-  server.get(
+  server.get<{
+    Querystring: object
+    Headers: object
+    Reply: typeof User.$inferSelect
+  }>(
     '/me',
     {
       preValidation: verifySession,
     },
-    async (request, reply) => {
-      const session = request.session.get('data')
+    async (request: RequestWithSession, reply) => {
+      const { userId } = request.session.get('data')
+
       try {
-        const foundUser = await db.select().from(User).where(eq(User.id, session.userId)).limit(1)
+        const foundUser = await db.select().from(User).where(eq(User.id, userId)).limit(1)
 
         /**
          * If user does not exist, then we should delete their
@@ -26,7 +32,7 @@ const usersPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
           return reply.code(401).send()
         }
 
-        return reply.code(200).send(User)
+        return reply.code(200).send(foundUser[0])
       } catch (err) {
         request.log.info('Could not fetch user', { err })
         return reply.code(500).send()
@@ -40,8 +46,8 @@ const usersPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
       preValidation: verifySession,
     },
     async (request, reply) => {
-      const session = request.session.get('data')
-      await db.delete(User).where(eq(User.id, session.userId))
+      const { userId } = request.session.data
+      await db.delete(User).where(eq(User.id, userId))
       return true
     }
   )

@@ -1,9 +1,9 @@
 import { db, takeUniqueOrThrow } from '@app/db'
-import type { FastifyInstance } from 'fastify'
-
-import { verifySession } from '../auth/utils'
 import { List, ListInvite, User } from '@app/db/drizzle/schema'
+import type { RequestWithSession } from '@app/typings'
 import { eq } from 'drizzle-orm'
+import type { FastifyInstance } from 'fastify'
+import { verifySession } from '../auth/utils'
 
 const getListInvitesRoute = (server: FastifyInstance) => {
   server.get(
@@ -97,7 +97,7 @@ const getListInvitesRoute = (server: FastifyInstance) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: RequestWithSession, reply) => {
       const { id } = request.params as { id: string }
       const { email } = request.body as { email: string }
       const { userId } = request.session.get('data')

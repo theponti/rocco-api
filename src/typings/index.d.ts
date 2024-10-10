@@ -1,15 +1,25 @@
 import type { User } from '@app/db/drizzle/schema'
 import * as FastifyJwt from '@fastify/jwt'
 import type { MultipartFile } from '@fastify/multipart'
-import type { Session } from '@fastify/secure-session'
+import type { Session, SessionData } from '@fastify/secure-session'
 import type { MailService } from '@sendgrid/mail'
+import type { FastifyRequest } from 'fastify'
+
+export type RequestWithSession = FastifyRequest & {
+  session: {
+    get(key: 'data'): SessionData['data']
+    delete(): void
+  }
+}
 
 declare module '@fastify/secure-session' {
   interface SessionData {
-    name: string | null
-    userId: string
-    isAdmin: boolean
-    roles: string[]
+    data: {
+      name: string | null
+      userId: string
+      isAdmin: boolean
+      roles: string[]
+    }
   }
 }
 
@@ -26,10 +36,7 @@ declare module 'fastify' {
   }
 
   interface FastifyRequest {
-    auth: {
-      userId: string
-      isAdmin: boolean
-    }
     file: MultipartFile
+    user?: typeof User.$inferSelect
   }
 }

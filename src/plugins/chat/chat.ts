@@ -1,9 +1,10 @@
 import { db, takeUniqueOrThrow } from '@app/db'
 import { Chat, ChatMessage } from '@app/db/drizzle/schema'
+import type { RequestWithSession } from '@app/typings'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { eq } from 'drizzle-orm'
-import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import { HttpResponseOutputParser } from 'langchain/output_parsers'
 import { verifySession } from '../auth/utils'
@@ -46,8 +47,8 @@ const chatPlugin: FastifyPluginAsync = async (fastify) => {
     {
       preValidation: verifySession,
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
-      const { userId } = request.session
+    async (request: RequestWithSession, reply) => {
+      const { userId } = request.session.get('data')
 
       if (!userId) {
         return reply.code(401).send({ error: 'Unauthorized' })

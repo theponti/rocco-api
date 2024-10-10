@@ -1,8 +1,8 @@
 import { db, takeUniqueOrThrow } from '@app/db'
-import { ListInvite, UserLists } from '@app/db/drizzle/schema'
+import { ListInvite, UserLists, type User } from '@app/db/drizzle/schema'
+import type { RequestWithSession } from '@app/typings'
 import { and, eq } from 'drizzle-orm'
-import type { FastifyInstance } from 'fastify'
-
+import type { FastifyInstance, FastifyRequest } from 'fastify'
 import { verifySession } from '../../auth/utils'
 
 const acceptListInviteRoute = async (server: FastifyInstance) => {
@@ -35,12 +35,11 @@ const acceptListInviteRoute = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request, reply) => {
+    async (request: RequestWithSession, reply) => {
       const { listId } = request.params as { listId: string }
-      const { email, userId } = request.session.get('data')
-      const listInviteArgs = {
-        listId_invitedUserEmail: { listId, invitedUserEmail: email },
-      }
+      const { userId } = request.session.get('data')
+      const { email } = request.user as typeof User.$inferSelect
+
       const invite = await db
         .select()
         .from(ListInvite)
