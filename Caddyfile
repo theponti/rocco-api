@@ -3,5 +3,5 @@ rocco.hominem.localhost {
 }
 
 api.hominem.localhost {
-	reverse_proxy localhost:3000
+	reverse_proxy localhost:53421
 }

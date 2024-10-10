@@ -1,6 +1,7 @@
 import { HominemVectorStore } from '@app/lib/chromadb.js'
 import { embedder } from '@app/lib/embeddings'
 import { supabaseClient } from '@app/lib/supabase.js'
+import logger from '@app/logger'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
@@ -55,7 +56,7 @@ export const imagePlugin: FastifyPluginAsync = async (server) => {
       const images = supabaseClient.storage.from('photos').list()
       res.status(200).send(images)
     } catch (error) {
-      console.log('ERROR: ', error)
+      logger.error('ERROR: ', error)
       res.status(500).send({ error: 'Error fetching images' })
     }
   })

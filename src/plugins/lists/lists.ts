@@ -1,9 +1,9 @@
 import { db } from '@app/db'
-import type { FastifyInstance } from 'fastify'
-
-import { verifySession } from '../auth/utils'
 import { List, User, UserLists } from '@app/db/drizzle/schema'
+import type { RequestWithSession } from '@app/typings'
 import { desc, eq } from 'drizzle-orm'
+import type { FastifyInstance } from 'fastify'
+import { verifySession } from '../auth/utils'
 
 async function getUserLists(userId: string) {
   return db
@@ -21,7 +21,7 @@ const getListsRoute = (server: FastifyInstance) => {
     {
       preValidation: verifySession,
     },
-    async (request) => {
+    async (request: RequestWithSession) => {
       const { userId } = request.session.get('data')
       const lists = await db
         .select()

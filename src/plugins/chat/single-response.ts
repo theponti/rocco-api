@@ -45,8 +45,6 @@ const chatSingleResponsePlugin: FastifyPluginAsync<ChatPluginOptions> = async (
       try {
         const { messages } = request.body as { messages: Message[] }
 
-        console.log('data', messages)
-
         const message = messages.at(-1)?.content
 
         if (!message) {

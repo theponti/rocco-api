@@ -1,8 +1,8 @@
 import { db, takeUniqueOrThrow } from '@app/db'
 import { List } from '@app/db/drizzle/schema'
+import type { RequestWithSession } from '@app/typings'
 import type { InferInsertModel } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
-
 import { EVENTS, track } from '../../../analytics'
 import { verifySession } from '../../auth/utils'
 
@@ -41,7 +41,7 @@ const postListRoute = (server: FastifyInstance) => {
         },
       },
     },
-    async (request): Promise<{ list: InferInsertModel<typeof List> }> => {
+    async (request: RequestWithSession): Promise<{ list: InferInsertModel<typeof List> }> => {
       const { name } = request.body as { name: string }
       const { userId } = request.session.get('data')
       const list = await db

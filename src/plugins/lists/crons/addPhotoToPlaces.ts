@@ -4,10 +4,11 @@
  */
 
 import { db } from '@app/db'
+import { Place } from '@app/db/drizzle/schema'
+import logger from '@app/logger'
+import { eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
 import { getPlacePhotos, isValidImageUrl } from '../../google/places'
-import { Place } from '@app/db/drizzle/schema'
-import { eq } from 'drizzle-orm'
 
 async function addPhotoToPlaces(server: FastifyInstance) {
   let count = 0
@@ -20,7 +21,7 @@ async function addPhotoToPlaces(server: FastifyInstance) {
   for (const place of places) {
     // Skip places that already have a valid image
     if (place.imageUrl && isValidImageUrl(place.imageUrl)) {
-      console.log('Place already has a valid image', { id: place.id })
+      logger.info('Place already has a valid image', { id: place.id })
       continue
     }
 

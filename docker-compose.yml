@@ -65,7 +65,7 @@ services:
         - action: rebuild
           path: package.json
     ports:
-      - "3000:3000"
+      - "53421:3000"
       - "9229:9229"
     environment:
       - NODE_ENV=development

@@ -1,7 +1,8 @@
 import { db, takeUniqueOrThrow } from '@app/db'
 import { Item, List, Place } from '@app/db/drizzle/schema'
-import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify'
-
+import type { RequestWithSession } from '@app/typings'
+import { and, eq, inArray } from 'drizzle-orm'
+import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { EVENTS, track } from '../../analytics'
 import { verifySession } from '../auth/utils'
 import {
@@ -10,8 +11,6 @@ import {
   type FormattedPlace,
   type PhotoMedia,
 } from '../google/places'
-
-import { and, eq, inArray } from 'drizzle-orm'
 import * as search from './search'
 
 const types = {
@@ -94,7 +93,7 @@ const PlacesPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request) => {
+    async (request: RequestWithSession) => {
       const { userId } = request.session.get('data')
       const { listIds, place } = request.body as PlacePostBody
       const filteredListTypes = place.types.filter((type) => {
@@ -161,12 +160,12 @@ const PlacesPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request) => {
+    async (request: RequestWithSession) => {
+      const { userId } = request.session.get('data')
       const { listId, placeId } = request.params as {
         listId: string
         placeId: string
       }
-      const { userId } = request.session.get('data')
 
       await db
         .delete(Item)
@@ -236,7 +235,7 @@ const PlacesPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request: FastifyRequest, reply: FastifyReply) => {
+    async (request: RequestWithSession, reply) => {
       const { id } = request.params as { id: string }
       let photos: PhotoMedia[] | undefined
       let lists: { id: string; name: string }[] = []

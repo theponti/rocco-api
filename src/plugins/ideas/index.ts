@@ -1,7 +1,8 @@
 import { db } from '@app/db'
 import { Idea } from '@app/db/drizzle/schema'
+import type { RequestWithSession } from '@app/typings'
 import { and, desc, eq } from 'drizzle-orm'
-import type { FastifyInstance, FastifyPluginAsync, FastifyRequest } from 'fastify'
+import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { verifySession } from '../auth/utils'
 
 const ideaSchema = {
@@ -17,6 +18,7 @@ const ideasPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
   server.get(
     '/ideas',
     {
+      preValidation: verifySession,
       schema: {
         response: {
           200: {
@@ -26,7 +28,7 @@ const ideasPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request) => {
+    async (request: RequestWithSession) => {
       const { userId } = request.session.get('data')
       const ideas = await db
         .select()
@@ -40,6 +42,7 @@ const ideasPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
   server.post(
     '/ideas',
     {
+      preValidation: verifySession,
       schema: {
         body: {
           type: 'object',
@@ -53,7 +56,7 @@ const ideasPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request: FastifyRequest) => {
+    async (request: RequestWithSession) => {
       const { description } = request.body as { description: string }
       const { userId } = request.session.get('data')
       const idea = await db.insert(Idea).values({
@@ -67,7 +70,7 @@ const ideasPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
   server.delete(
     '/ideas/:id',
     {
-      preHandler: verifySession,
+      preValidation: verifySession,
       schema: {
         params: {
           type: 'object',
@@ -81,7 +84,7 @@ const ideasPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         },
       },
     },
-    async (request) => {
+    async (request: RequestWithSession) => {
       const { id } = request.params as { id: string }
       const { userId } = request.session.get('data')
       await db.delete(Idea).where(and(eq(Idea.userId, userId), eq(Idea.id, id)))
