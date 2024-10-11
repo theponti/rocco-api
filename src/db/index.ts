@@ -12,10 +12,6 @@ export const db = drizzle(client, { schema })
 
 export const PgPlugin = fastifyPlugin(async (server) => {
   try {
-    logger.info({
-      msg: 'Connecting to Postgres',
-      url: process.env.DATABASE_URL,
-    })
     await client.connect()
     logger.info('Connected to Postgres')
     server.decorate('db', db)
