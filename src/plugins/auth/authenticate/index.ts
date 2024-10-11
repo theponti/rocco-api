@@ -112,6 +112,7 @@ const authenticatePlugin: FastifyPluginAsync = async (server) => {
         const createdUser = await t
           .insert(User)
           .values({
+            id: crypto.randomUUID(),
             email,
           })
           .returning()
@@ -119,6 +120,7 @@ const authenticatePlugin: FastifyPluginAsync = async (server) => {
 
         // 👇 create a list for the new user
         await t.insert(List).values({
+          id: crypto.randomUUID(),
           name: 'General',
           userId: createdUser.id,
         })

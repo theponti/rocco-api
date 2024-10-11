@@ -69,6 +69,7 @@ const chatPlugin: FastifyPluginAsync = async (fastify) => {
           chat = await db
             .insert(Chat)
             .values({
+              id: crypto.randomUUID(),
               title: 'Basic Chat',
               userId,
             })
@@ -111,6 +112,7 @@ const chatPlugin: FastifyPluginAsync = async (fastify) => {
             await t
               .insert(ChatMessage)
               .values({
+                id: crypto.randomUUID(),
                 userId,
                 chatId: chat.id,
                 role: 'user',
@@ -122,6 +124,7 @@ const chatPlugin: FastifyPluginAsync = async (fastify) => {
             await t
               .insert(ChatMessage)
               .values({
+                id: crypto.randomUUID(),
                 userId,
                 chatId: chat.id,
                 role: 'assistant',

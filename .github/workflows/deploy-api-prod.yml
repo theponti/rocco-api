@@ -2,7 +2,7 @@ name: deploy-api-prod
 
 on:
   workflow_run:
-    workflows: ["code-quality"]
+    workflows: ["code-quality", "deploy-db"]
     branches: [main]
     # Requied to run only on successful completion of the code-quality workflow
     types:
@@ -12,7 +12,9 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: >
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+          github.event.workflow_run.workflow_id != github.workflow }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4

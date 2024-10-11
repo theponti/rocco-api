@@ -47,6 +47,7 @@ const postListRoute = (server: FastifyInstance) => {
       const list = await db
         .insert(List)
         .values({
+          id: crypto.randomUUID(),
           name,
           userId,
         })

@@ -32,7 +32,14 @@ async function createToken({
 
   if (!user) {
     // 👇 create a new user if they don't exist
-    const newUser = await db.insert(User).values({ email }).returning().then(takeOne)
+    const newUser = await db
+      .insert(User)
+      .values({
+        id: crypto.randomUUID(),
+        email,
+      })
+      .returning()
+      .then(takeOne)
     user = newUser
   }
 

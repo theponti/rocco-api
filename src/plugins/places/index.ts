@@ -103,6 +103,7 @@ const PlacesPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
       const createdPlace = await db
         .insert(Place)
         .values({
+          id: crypto.randomUUID(),
           name: place.name,
           description: '',
           address: place.address,
@@ -121,9 +122,11 @@ const PlacesPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
         .insert(Item)
         .values(
           [...listIds].map((id) => ({
+            id: crypto.randomUUID(),
             type: 'PLACE',
             itemId: createdPlace.id,
             listId: id,
+            userId,
           }))
         )
         .onConflictDoNothing()

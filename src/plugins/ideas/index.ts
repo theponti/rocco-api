@@ -60,6 +60,7 @@ const ideasPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
       const { description } = request.body as { description: string }
       const { userId } = request.session.get('data')
       const idea = await db.insert(Idea).values({
+        id: crypto.randomUUID(),
         description,
         userId,
       })

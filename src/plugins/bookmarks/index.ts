@@ -102,6 +102,7 @@ const bookmarksPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {
 
         const obj = await db.insert(Bookmark).values({
           ...bookmark,
+          id: crypto.randomUUID(),
           userId,
         })
         return { bookmark: obj }
