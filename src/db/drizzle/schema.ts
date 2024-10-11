@@ -42,7 +42,7 @@ export const VerificationToken = pgTable(
 export const User = pgTable(
   'User',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     email: text('email').notNull(),
     name: text('name'),
     isAdmin: boolean('isAdmin').default(false).notNull(),
@@ -61,8 +61,8 @@ export const User = pgTable(
 export const Account = pgTable(
   'Account',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
-    userId: uuid('userId').notNull(),
+    id: text('id').primaryKey().notNull(),
+    userId: text('userId').notNull(),
     type: text('type').notNull(),
     provider: text('provider').notNull(),
     providerAccountId: text('providerAccountId').notNull(),
@@ -95,7 +95,7 @@ export const Account = pgTable(
 export const Bookmark = pgTable(
   'Bookmark',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     image: text('image'),
     title: text('title').notNull(),
     description: text('description'),
@@ -106,7 +106,7 @@ export const Bookmark = pgTable(
     locationLng: text('locationLng'),
     siteName: text('siteName').notNull(),
     url: text('url').notNull(),
-    userId: uuid('userId').notNull(),
+    userId: text('userId').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
   },
@@ -126,9 +126,9 @@ export const Bookmark = pgTable(
 export const Chat = pgTable(
   'Chat',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     title: text('title').notNull(),
-    userId: uuid('userId').notNull(),
+    userId: text('userId').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
   },
@@ -148,9 +148,9 @@ export const Chat = pgTable(
 export const ChatMessage = pgTable(
   'ChatMessage',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
-    chatId: uuid('chatId').notNull(),
-    userId: uuid('userId').notNull(),
+    id: text('id').primaryKey().notNull(),
+    chatId: text('chatId').notNull(),
+    userId: text('userId').notNull(),
     role: text('role').notNull(),
     content: text('content').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
@@ -179,7 +179,7 @@ export const ChatMessage = pgTable(
 export const Flight = pgTable(
   'Flight',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     flightNumber: text('flightNumber').notNull(),
     departureAirport: text('departureAirport').notNull(),
     departureDate: timestamp('departureDate', { mode: 'string' }).notNull(),
@@ -190,8 +190,8 @@ export const Flight = pgTable(
     url: text('url').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
-    userId: uuid('userId').notNull(),
-    listId: uuid('listId'),
+    userId: text('userId').notNull(),
+    listId: text('listId'),
   },
   (table) => {
     return {
@@ -208,7 +208,7 @@ export const Flight = pgTable(
         name: 'Flight_listId_List_id_fk',
       })
         .onUpdate('cascade')
-        .onDelete('set null'),
+        .onDelete('cascade'),
     }
   }
 )
@@ -216,10 +216,10 @@ export const Flight = pgTable(
 export const List = pgTable(
   'List',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     name: text('name').notNull(),
     description: text('description'),
-    userId: uuid('userId').notNull(),
+    userId: text('userId').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
   },
@@ -239,9 +239,9 @@ export const List = pgTable(
 export const Idea = pgTable(
   'Idea',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     description: text('description').notNull(),
-    userId: uuid('userId').notNull(),
+    userId: text('userId').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
   },
@@ -261,13 +261,13 @@ export const Idea = pgTable(
 export const Item = pgTable(
   'Item',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     type: text('type').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
-    itemId: uuid('itemId').notNull(),
-    listId: uuid('listId').notNull(),
-    userId: uuid('userId'),
+    itemId: text('itemId').notNull(),
+    listId: text('listId').notNull(),
+    userId: text('userId').notNull(),
     itemType: itemType('itemType').default('PLACE').notNull(),
   },
   (table) => {
@@ -290,7 +290,7 @@ export const Item = pgTable(
         name: 'Item_userId_User_id_fk',
       })
         .onUpdate('cascade')
-        .onDelete('set null'),
+        .onDelete('cascade'),
     }
   }
 )
@@ -305,7 +305,7 @@ export const Token = pgTable(
     emailToken: text('emailToken'),
     valid: boolean('valid').default(true).notNull(),
     expiration: timestamp('expiration', { precision: 3, mode: 'string' }).notNull(),
-    userId: uuid('userId').notNull(),
+    userId: text('userId').notNull(),
     accessToken: text('accessToken'),
     refreshToken: text('refreshToken'),
   },
@@ -335,12 +335,12 @@ export const Token = pgTable(
 )
 
 export const Movie = pgTable('Movie', {
-  id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+  id: text('id').primaryKey().notNull(),
   title: text('title').notNull(),
   description: text('description').notNull(),
   image: text('image').notNull(),
   director: text('director'),
-  userId: uuid('userId').notNull(),
+  userId: text('userId').notNull(),
   createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
   updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
 })
@@ -348,9 +348,9 @@ export const Movie = pgTable('Movie', {
 export const MovieViewings = pgTable(
   'MovieViewings',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
-    movieId: uuid('movieId').notNull(),
-    userId: uuid('userId').notNull(),
+    id: text('id').primaryKey().notNull(),
+    movieId: text('movieId').notNull(),
+    userId: text('userId').notNull(),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
   },
@@ -377,14 +377,14 @@ export const MovieViewings = pgTable(
 export const Place = pgTable(
   'Place',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     name: text('name').notNull(),
     description: text('description'),
     address: text('address'),
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
-    userId: uuid('userId').notNull(),
-    itemId: uuid('itemId'),
+    userId: text('userId').notNull(),
+    itemId: text('itemId'),
     googleMapsId: text('googleMapsId'),
     types: text('types').array(),
     imageUrl: text('imageUrl'),
@@ -417,9 +417,9 @@ export const Place = pgTable(
 export const Session = pgTable(
   'Session',
   {
-    id: uuid('id').default(sql`uuid_generate_v4()`).primaryKey().notNull(),
+    id: text('id').primaryKey().notNull(),
     sessionToken: text('sessionToken').notNull(),
-    userId: uuid('userId').notNull(),
+    userId: text('userId').notNull(),
     expires: timestamp('expires', { precision: 3, mode: 'string' }).notNull(),
   },
   (table) => {
@@ -444,8 +444,8 @@ export const UserLists = pgTable(
   {
     createdAt: timestamp('createdAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
     updatedAt: timestamp('updatedAt', { precision: 3, mode: 'string' }).defaultNow().notNull(),
-    listId: uuid('listId').notNull(),
-    userId: uuid('userId').notNull(),
+    listId: text('listId').notNull(),
+    userId: text('userId').notNull(),
   },
   (table) => {
     return {
@@ -472,10 +472,10 @@ export const ListInvite = pgTable(
   'ListInvite',
   {
     accepted: boolean('accepted').default(false).notNull(),
-    listId: uuid('listId').notNull(),
+    listId: text('listId').notNull(),
     invitedUserEmail: text('invitedUserEmail').notNull(),
-    invitedUserId: uuid('invitedUserId'),
-    userId: uuid('userId').notNull(),
+    invitedUserId: text('invitedUserId'),
+    userId: text('userId').notNull(),
   },
   (table) => {
     return {

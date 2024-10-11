@@ -1,4 +1,3 @@
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" --> statement-breakpoint
 DO $$ BEGIN
  CREATE TYPE "public"."ItemType" AS ENUM('FLIGHT', 'PLACE');
 EXCEPTION
@@ -12,8 +11,8 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Account" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"userId" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"userId" text NOT NULL,
 	"type" text NOT NULL,
 	"provider" text NOT NULL,
 	"providerAccountId" text NOT NULL,
@@ -27,7 +26,7 @@ CREATE TABLE IF NOT EXISTS "Account" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Bookmark" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"image" text,
 	"title" text NOT NULL,
 	"description" text,
@@ -38,23 +37,23 @@ CREATE TABLE IF NOT EXISTS "Bookmark" (
 	"locationLng" text,
 	"siteName" text NOT NULL,
 	"url" text NOT NULL,
-	"userId" uuid NOT NULL,
+	"userId" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Chat" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
-	"userId" uuid NOT NULL,
+	"userId" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "ChatMessage" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"chatId" uuid NOT NULL,
-	"userId" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"chatId" text NOT NULL,
+	"userId" text NOT NULL,
 	"role" text NOT NULL,
 	"content" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
@@ -62,7 +61,7 @@ CREATE TABLE IF NOT EXISTS "ChatMessage" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Flight" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"flightNumber" text NOT NULL,
 	"departureAirport" text NOT NULL,
 	"departureDate" timestamp NOT NULL,
@@ -73,75 +72,75 @@ CREATE TABLE IF NOT EXISTS "Flight" (
 	"url" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL,
-	"userId" uuid NOT NULL,
-	"listId" uuid
+	"userId" text NOT NULL,
+	"listId" text
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Idea" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"description" text NOT NULL,
-	"userId" uuid NOT NULL,
+	"userId" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Item" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"type" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL,
-	"itemId" uuid NOT NULL,
-	"listId" uuid NOT NULL,
-	"userId" uuid,
+	"itemId" text NOT NULL,
+	"listId" text NOT NULL,
+	"userId" text NOT NULL,
 	"itemType" "ItemType" DEFAULT 'PLACE' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "List" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
-	"userId" uuid NOT NULL,
+	"userId" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "ListInvite" (
 	"accepted" boolean DEFAULT false NOT NULL,
-	"listId" uuid NOT NULL,
+	"listId" text NOT NULL,
 	"invitedUserEmail" text NOT NULL,
-	"invitedUserId" uuid,
-	"userId" uuid NOT NULL,
+	"invitedUserId" text,
+	"userId" text NOT NULL,
 	CONSTRAINT "ListInvite_pkey" PRIMARY KEY("listId","invitedUserEmail")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Movie" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"title" text NOT NULL,
 	"description" text NOT NULL,
 	"image" text NOT NULL,
 	"director" text,
-	"userId" uuid NOT NULL,
+	"userId" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "MovieViewings" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
-	"movieId" uuid NOT NULL,
-	"userId" uuid NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
+	"movieId" text NOT NULL,
+	"userId" text NOT NULL,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Place" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
 	"address" text,
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL,
-	"userId" uuid NOT NULL,
-	"itemId" uuid,
+	"userId" text NOT NULL,
+	"itemId" text,
 	"googleMapsId" text,
 	"types" text[],
 	"imageUrl" text,
@@ -153,9 +152,9 @@ CREATE TABLE IF NOT EXISTS "Place" (
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "Session" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"sessionToken" text NOT NULL,
-	"userId" uuid NOT NULL,
+	"userId" text NOT NULL,
 	"expires" timestamp(3) NOT NULL
 );
 --> statement-breakpoint
@@ -167,13 +166,13 @@ CREATE TABLE IF NOT EXISTS "Token" (
 	"emailToken" text,
 	"valid" boolean DEFAULT true NOT NULL,
 	"expiration" timestamp(3) NOT NULL,
-	"userId" uuid NOT NULL,
+	"userId" text NOT NULL,
 	"accessToken" text,
 	"refreshToken" text
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "User" (
-	"id" uuid PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
+	"id" text PRIMARY KEY NOT NULL,
 	"email" text NOT NULL,
 	"name" text,
 	"isAdmin" boolean DEFAULT false NOT NULL,
@@ -186,8 +185,8 @@ CREATE TABLE IF NOT EXISTS "User" (
 CREATE TABLE IF NOT EXISTS "UserLists" (
 	"createdAt" timestamp(3) DEFAULT now() NOT NULL,
 	"updatedAt" timestamp(3) DEFAULT now() NOT NULL,
-	"listId" uuid NOT NULL,
-	"userId" uuid NOT NULL,
+	"listId" text NOT NULL,
+	"userId" text NOT NULL,
 	CONSTRAINT "UserLists_pkey" PRIMARY KEY("listId","userId")
 );
 --> statement-breakpoint
@@ -234,7 +233,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "Flight" ADD CONSTRAINT "Flight_listId_List_id_fk" FOREIGN KEY ("listId") REFERENCES "public"."List"("id") ON DELETE set null ON UPDATE cascade;
+ ALTER TABLE "Flight" ADD CONSTRAINT "Flight_listId_List_id_fk" FOREIGN KEY ("listId") REFERENCES "public"."List"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
@@ -252,7 +251,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "Item" ADD CONSTRAINT "Item_userId_User_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE set null ON UPDATE cascade;
+ ALTER TABLE "Item" ADD CONSTRAINT "Item_userId_User_id_fk" FOREIGN KEY ("userId") REFERENCES "public"."User"("id") ON DELETE cascade ON UPDATE cascade;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
