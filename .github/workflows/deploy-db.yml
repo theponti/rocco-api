@@ -24,10 +24,9 @@ jobs:
           node-version: "20"
 
       - name: ⬇️ Install dependencies
-        run: npm install
+        run: yarn install
 
       - name: ⬆️ Deploy
-        working-directory: packages/db
-        run: npx prisma migrate deploy
+        run: yarn drizzle-kit migrate
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
