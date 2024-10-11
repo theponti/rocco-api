@@ -1,9 +1,8 @@
-import { db } from '@app/db'
-import { Bookmark } from '@app/db/drizzle/schema'
 import { and, desc, eq } from 'drizzle-orm'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
-
-import type { RequestWithSession } from '@app/typings'
+import { db } from '../../db'
+import { Bookmark } from '../../db/drizzle/schema'
+import type { RequestWithSession } from '../../typings'
 import { verifySession } from '../auth/utils'
 import { convertOGContentToBookmark, getOpenGraphData } from './utils'
 

@@ -1,9 +1,9 @@
-import type { User } from '@app/db/drizzle/schema'
 import * as FastifyJwt from '@fastify/jwt'
 import type { MultipartFile } from '@fastify/multipart'
 import type { Session, SessionData } from '@fastify/secure-session'
 import type { MailService } from '@sendgrid/mail'
 import type { FastifyRequest } from 'fastify'
+import type { User } from '../../db/drizzle/schema'
 
 export type RequestWithSession = FastifyRequest & {
   session: {

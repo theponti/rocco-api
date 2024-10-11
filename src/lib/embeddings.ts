@@ -1,8 +1,8 @@
-import { HominemVectorStore } from '@app/lib/chromadb'
-import logger from '@app/logger'
 import { Document } from '@langchain/core/documents'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs/promises'
+import { HominemVectorStore } from '../lib/chromadb'
+import logger from '../logger'
 
 class Embedder {
   private embeddings: HominemVectorStore.VectorEmbeddings

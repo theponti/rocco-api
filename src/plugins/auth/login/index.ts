@@ -1,7 +1,6 @@
 import type { FastifyPluginAsync } from 'fastify'
-
-import logger from '@app/logger'
 import { APP_USER_ID, EVENTS, track } from '../../../analytics'
+import logger from '../../../logger'
 import { createToken } from './createToken'
 
 interface LoginInput {

@@ -1,10 +1,9 @@
 import { eq } from 'drizzle-orm'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
-
-import { db } from '@app/db'
-import { User } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
+import { db } from '../db'
+import { User } from '../db/drizzle/schema'
+import type { RequestWithSession } from '../typings'
 import { verifySession } from './auth/utils'
 
 const usersPlugin: FastifyPluginAsync = async (server: FastifyInstance) => {

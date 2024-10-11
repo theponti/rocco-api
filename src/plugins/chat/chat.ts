@@ -1,12 +1,12 @@
-import { db, takeUniqueOrThrow } from '@app/db'
-import { Chat, ChatMessage } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { eq } from 'drizzle-orm'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import { HttpResponseOutputParser } from 'langchain/output_parsers'
+import { db, takeUniqueOrThrow } from '../../db'
+import { Chat, ChatMessage } from '../../db/drizzle/schema'
+import type { RequestWithSession } from '../../typings'
 import { verifySession } from '../auth/utils'
 
 const formatMessage = (message: { role: string; content: string }) => {

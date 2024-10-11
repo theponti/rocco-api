@@ -16,6 +16,7 @@
   "editor.codeActionsOnSave": {
     "source.sortImports": "always"
   },
+  "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "typescript.tsdk": "node_modules/typescript/lib",
   "cSpell.ignoreWords": ["openai", "langchain", "fastify"],
@@ -30,6 +31,7 @@
     "serpapi",
     "supabase",
     "typecheck",
+    "vectorstores",
     "xenova"
   ]
 }

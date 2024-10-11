@@ -1,8 +1,8 @@
-import { supabaseClient } from '@app/lib/supabase.js'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import fs from 'node:fs'
 import { openaiClient } from '../../lib/openai.js'
+import { supabaseClient } from '../../lib/supabase.js'
 
 const audioPlugin: FastifyPluginAsync = async (server) => {
   server.post('/upload-audio', async (request, reply) => {

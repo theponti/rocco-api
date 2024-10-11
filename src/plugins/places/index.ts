@@ -1,9 +1,9 @@
-import { db, takeUniqueOrThrow } from '@app/db'
-import { Item, List, Place } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
 import { and, eq, inArray } from 'drizzle-orm'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
 import { EVENTS, track } from '../../analytics'
+import { db, takeUniqueOrThrow } from '../../db'
+import { Item, List, Place } from '../../db/drizzle/schema'
+import type { RequestWithSession } from '../../typings'
 import { verifySession } from '../auth/utils'
 import {
   getPlaceDetails,

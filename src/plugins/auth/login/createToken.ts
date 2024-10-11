@@ -1,10 +1,9 @@
-import { List, Token, User } from '@app/db/drizzle/schema'
-import { db, takeOne, takeUniqueOrThrow } from '@app/db'
-import { eq } from 'drizzle-orm'
 import { add } from 'date-fns'
+import { eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
-
 import { APP_USER_ID, EVENTS, track } from '../../../analytics'
+import { db, takeOne } from '../../../db'
+import { Token, User } from '../../../db/drizzle/schema'
 import { sendEmailToken } from '../../email'
 
 const EMAIL_TOKEN_EXPIRATION_MINUTES = 10

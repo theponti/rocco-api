@@ -1,8 +1,8 @@
-import { db } from '@app/db'
-import { Idea } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
 import { and, desc, eq } from 'drizzle-orm'
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
+import { db } from '../../db'
+import { Idea } from '../../db/drizzle/schema'
+import type { RequestWithSession } from '../../typings'
 import { verifySession } from '../auth/utils'
 
 const ideaSchema = {

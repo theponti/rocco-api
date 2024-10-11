@@ -1,7 +1,7 @@
-import { db, takeUniqueOrThrow } from '@app/db'
-import { User } from '@app/db/drizzle/schema'
 import { eq } from 'drizzle-orm'
 import type { FastifyReply, FastifyRequest, preValidationHookHandler } from 'fastify'
+import { db, takeUniqueOrThrow } from '../../../db'
+import { User } from '../../../db/drizzle/schema'
 
 export function verifyPermissions(permissions: string[]) {
   return (request: FastifyRequest, reply: FastifyReply, done: () => void) => {

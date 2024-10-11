@@ -1,8 +1,8 @@
-import { db } from '@app/db'
-import { List, User, UserLists } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
 import { desc, eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
+import { db } from '../../db'
+import { List, User, UserLists } from '../../db/drizzle/schema'
+import type { RequestWithSession } from '../../typings'
 import { verifySession } from '../auth/utils'
 
 async function getUserLists(userId: string) {

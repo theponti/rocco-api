@@ -1,4 +1,3 @@
-import { openaiModel } from '@app/lib/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { RunnableSequence } from '@langchain/core/runnables'
 import {
@@ -11,6 +10,7 @@ import fastifyPlugin from 'fastify-plugin'
 import { JSONLoader } from 'langchain/document_loaders/fs/json'
 import { HttpResponseOutputParser } from 'langchain/output_parsers'
 import { formatDocumentsAsString } from 'langchain/util/document'
+import { openaiModel } from '../../lib/openai'
 
 const loader = new JSONLoader('@/data/states.json', [
   '/state',

@@ -1,7 +1,7 @@
-import type { Place } from '@app/db/drizzle/schema'
 import type { places_v1 } from 'googleapis'
 import { writeFile } from 'node:fs'
 import * as path from 'node:path'
+import type { Place } from '../../db/drizzle/schema'
 import { google } from './auth'
 
 export const { places } = google.places('v1')

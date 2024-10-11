@@ -1,8 +1,8 @@
-import { db, takeUniqueOrThrow } from '@app/db'
-import { ListInvite, UserLists, type User } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
 import { and, eq } from 'drizzle-orm'
 import type { FastifyInstance, FastifyRequest } from 'fastify'
+import { db, takeUniqueOrThrow } from '../../../db'
+import { ListInvite, UserLists, type User } from '../../../db/drizzle/schema'
+import type { RequestWithSession } from '../../../typings'
 import { verifySession } from '../../auth/utils'
 
 const acceptListInviteRoute = async (server: FastifyInstance) => {

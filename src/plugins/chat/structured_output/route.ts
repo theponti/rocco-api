@@ -1,6 +1,3 @@
-import { db } from '@app/db'
-import { ChatMessage } from '@app/db/drizzle/schema'
-import { verifySession } from '@app/plugins/auth/utils'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { ChatOpenAI } from '@langchain/openai'
 import { eq } from 'drizzle-orm'
@@ -9,6 +6,9 @@ import fastifyPlugin from 'fastify-plugin'
 import { JsonOutputFunctionsParser } from 'langchain/output_parsers'
 import { z } from 'zod'
 import { zodToJsonSchema } from 'zod-to-json-schema'
+import { db } from '../../../db'
+import { ChatMessage } from '../../../db/drizzle/schema'
+import { verifySession } from '../../../plugins/auth/utils'
 
 const STRUCTURED_OUTPUT_TEMPLATE = 'Extract the requested fields from the input.'
 

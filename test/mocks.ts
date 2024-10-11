@@ -1,4 +1,4 @@
-import type { Place } from '@app/db/drizzle/schema'
+import type { Place } from '../src/db/drizzle/schema'
 
 const ADDRESS = '123 Main St, Anytown, USA'
 const NAME = 'Really Cool Place'

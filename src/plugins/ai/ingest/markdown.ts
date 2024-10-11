@@ -1,7 +1,7 @@
-import { HominemVectorStore } from '@app/lib/chromadb'
 import type { FastifyPluginAsync } from 'fastify'
 import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter'
 import { createHash } from 'node:crypto'
+import { HominemVectorStore } from '../../../lib/chromadb'
 
 // Before running, follow set-up instructions at
 // https://js.langchain.com/docs/modules/indexes/vector_stores/integrations/supabase

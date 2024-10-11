@@ -1,14 +1,13 @@
-import { supabaseClient } from '@app/lib/supabase'
 import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase'
 import type { Document } from '@langchain/core/documents'
 import { BytesOutputParser, StringOutputParser } from '@langchain/core/output_parsers'
 import { PromptTemplate } from '@langchain/core/prompts'
 import { RunnableSequence } from '@langchain/core/runnables'
 import { ChatOpenAI, OpenAIEmbeddings } from '@langchain/openai'
-import { createClient } from '@supabase/supabase-js'
-import type { StreamingTextResponse, Message as VercelChatMessage } from 'ai'
+import type { Message as VercelChatMessage } from 'ai'
 import type { FastifyPluginAsync } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
+import { supabaseClient } from '../../../lib/supabase'
 
 const combineDocumentsFn = (docs: Document[]) => {
   const serializedDocs = docs.map((doc) => doc.pageContent)

@@ -3,11 +3,11 @@
  * and updates the place with the photo URL.
  */
 
-import { db } from '@app/db'
-import { Place } from '@app/db/drizzle/schema'
-import logger from '@app/logger'
 import { eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
+import { db } from '../../../db'
+import { Place } from '../../../db/drizzle/schema'
+import logger from '../../../logger'
 import { getPlacePhotos, isValidImageUrl } from '../../google/places'
 
 async function addPhotoToPlaces(server: FastifyInstance) {

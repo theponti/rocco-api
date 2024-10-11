@@ -1,9 +1,9 @@
-import { openaiModel } from '@app/lib/openai'
 import { PromptTemplate } from '@langchain/core/prompts'
 import type { Message } from 'ai'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import { HttpResponseOutputParser } from 'langchain/output_parsers'
+import { openaiModel } from '../../lib/openai'
 import { verifySession } from '../auth/utils'
 
 // biome-ignore lint/complexity/noBannedTypes: <explanation>

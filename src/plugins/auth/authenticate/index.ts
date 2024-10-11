@@ -1,9 +1,9 @@
-import { db, takeUniqueOrThrow } from '@app/db'
-import { List, Token, User } from '@app/db/drizzle/schema'
 import { add } from 'date-fns'
 import { and, eq } from 'drizzle-orm'
 import type { FastifyPluginAsync } from 'fastify'
 import { APP_USER_ID, EVENTS, track } from '../../../analytics'
+import { db, takeUniqueOrThrow } from '../../../db'
+import { List, Token, User } from '../../../db/drizzle/schema'
 
 interface AuthenticateInput {
   email: string

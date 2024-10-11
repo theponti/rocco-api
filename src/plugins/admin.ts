@@ -1,7 +1,7 @@
-import { db } from '@app/db'
 import type { FastifyPluginAsync } from 'fastify'
+import { db } from '../db'
+import { User } from '../db/drizzle/schema'
 import { verifyIsAdmin } from './auth/utils'
-import { User } from '@app/db/drizzle/schema'
 
 const adminPlugin: FastifyPluginAsync = async (server) => {
   server.get(

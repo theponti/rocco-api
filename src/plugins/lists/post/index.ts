@@ -1,9 +1,9 @@
-import { db, takeUniqueOrThrow } from '@app/db'
-import { List } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
 import type { InferInsertModel } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
 import { EVENTS, track } from '../../../analytics'
+import { db, takeUniqueOrThrow } from '../../../db'
+import { List } from '../../../db/drizzle/schema'
+import type { RequestWithSession } from '../../../typings'
 import { verifySession } from '../../auth/utils'
 
 const postListRoute = (server: FastifyInstance) => {

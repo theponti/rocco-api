@@ -1,8 +1,8 @@
-import { db } from '@app/db'
-import { List, ListInvite, User } from '@app/db/drizzle/schema'
-import type { RequestWithSession } from '@app/typings'
 import { and, asc, eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
+import { db } from '../../../db'
+import { List, ListInvite, User } from '../../../db/drizzle/schema'
+import type { RequestWithSession } from '../../../typings'
 import { verifySession } from '../../auth/utils'
 
 const getUserInvitesRoute = (server: FastifyInstance) => {

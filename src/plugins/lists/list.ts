@@ -1,9 +1,8 @@
-import { db, takeUniqueOrThrow } from '@app/db'
+import { and, eq } from 'drizzle-orm'
 import type { FastifyInstance } from 'fastify'
-
+import { db, takeUniqueOrThrow } from '../../db'
+import { Item, List, Place } from '../../db/drizzle/schema'
 import { verifySession } from '../auth/utils'
-import { and, eq, sql } from 'drizzle-orm'
-import { Item, List, Place } from '@app/db/drizzle/schema'
 
 async function getListPlaces(listId: string): Promise<
   {

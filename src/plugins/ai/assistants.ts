@@ -1,6 +1,6 @@
-import { openaiClient } from '@app/lib/openai'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
+import { openaiClient } from '../../lib/openai'
 
 // Mock implementations of task functions
 const create_tasks = (tasks: string[]) => ({

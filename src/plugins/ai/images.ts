@@ -1,11 +1,11 @@
-import { HominemVectorStore } from '@app/lib/chromadb.js'
-import { embedder } from '@app/lib/embeddings'
-import { supabaseClient } from '@app/lib/supabase.js'
-import logger from '@app/logger'
 import { OpenAIEmbeddings } from '@langchain/openai'
 import type { FastifyPluginAsync } from 'fastify'
 import fp from 'fastify-plugin'
 import multer from 'multer'
+import { HominemVectorStore } from '../../lib/chromadb.js'
+import { embedder } from '../../lib/embeddings'
+import { supabaseClient } from '../../lib/supabase.js'
+import logger from '../../logger'
 
 // Save newly uploaded images to the data directory
 const upload = multer({ dest: 'data/' }).array('images')

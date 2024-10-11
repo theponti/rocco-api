@@ -1,4 +1,3 @@
-import { supabaseClient } from '@app/lib/supabase'
 import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase'
 import { AIMessage, ChatMessage, HumanMessage } from '@langchain/core/messages'
 import { ChatPromptTemplate, MessagesPlaceholder } from '@langchain/core/prompts'
@@ -8,6 +7,7 @@ import type { FastifyPluginAsync } from 'fastify'
 import fastifyPlugin from 'fastify-plugin'
 import { AgentExecutor, createToolCallingAgent } from 'langchain/agents'
 import { createRetrieverTool } from 'langchain/tools/retriever'
+import { supabaseClient } from '../../../lib/supabase'
 
 const convertVercelMessageToLangChainMessage = (message: VercelChatMessage) => {
   if (message.role === 'user') {

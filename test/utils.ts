@@ -1,9 +1,8 @@
+import type { Session, SessionData } from '@fastify/secure-session'
 import type { FastifyReply, FastifyRequest } from 'fastify'
 import type { Mock } from 'vitest'
 import { vi } from 'vitest'
-
-import * as auth from '@app/plugins/auth/utils'
-import type { Session, SessionData } from '@fastify/secure-session'
+import * as auth from '../src/plugins/auth/utils'
 
 export function mockAuthSession() {
   ;(auth.verifySession as Mock).mockImplementation(async (req) => {

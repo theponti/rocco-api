@@ -1,8 +1,8 @@
-import * as schema from './drizzle/schema'
-import { Client as PGClient } from 'pg'
 import { drizzle } from 'drizzle-orm/node-postgres'
 import fastifyPlugin from 'fastify-plugin'
-import logger from '@app/logger'
+import { Client as PGClient } from 'pg'
+import logger from '../logger'
+import * as schema from './drizzle/schema'
 
 const client = new PGClient({
   connectionString: process.env.DATABASE_URL,

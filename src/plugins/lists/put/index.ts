@@ -1,9 +1,8 @@
-import { db, takeUniqueOrThrow } from '@app/db'
-import type { FastifyInstance } from 'fastify'
-
-import { verifySession } from '../../auth/utils'
-import { List } from '@app/db/drizzle/schema'
 import { eq } from 'drizzle-orm'
+import type { FastifyInstance } from 'fastify'
+import { db } from '../../../db'
+import { List } from '../../../db/drizzle/schema'
+import { verifySession } from '../../auth/utils'
 
 const putListRoute = (server: FastifyInstance) => {
   server.put(
