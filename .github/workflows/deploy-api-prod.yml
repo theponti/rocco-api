@@ -2,7 +2,7 @@ name: deploy-api-prod
 
 on:
   workflow_run:
-    workflows: ["code-quality", "deploy-db"]
+    workflows: ["deploy-db"]
     branches: [main]
     # Requied to run only on successful completion of the code-quality workflow
     types:

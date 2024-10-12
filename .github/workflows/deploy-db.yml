@@ -1,11 +1,6 @@
 name: deploy-db
 
 on:
-  push:
-    paths:
-      - packages/db/**
-    branches:
-      - main
   workflow_run:
     workflows: ["code-quality"]
     branches: [main]
