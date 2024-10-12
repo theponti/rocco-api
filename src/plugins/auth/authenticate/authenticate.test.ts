@@ -61,6 +61,7 @@ describe('authenticatePlugin', () => {
           ),
         }),
       }),
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } as any)
 
     vi.mocked(db.transaction).mockImplementation(async (callback) => {
@@ -77,6 +78,7 @@ describe('authenticatePlugin', () => {
             where: vi.fn().mockResolvedValue({}),
           }),
         }),
+        // biome-ignore lint/suspicious/noExplicitAny: <explanation>
       } as any)
     })
 
@@ -101,6 +103,7 @@ describe('authenticatePlugin', () => {
           leftJoin: vi.fn().mockReturnValue(Promise.resolve(null)),
         }),
       }),
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } as any)
 
     const response = await server.inject({
@@ -128,6 +131,7 @@ describe('authenticatePlugin', () => {
           ),
         }),
       }),
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } as any)
 
     const response = await server.inject({
@@ -158,6 +162,7 @@ describe('authenticatePlugin', () => {
           ),
         }),
       }),
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } as any)
 
     const response = await server.inject({
@@ -188,6 +193,7 @@ describe('authenticatePlugin', () => {
           ),
         }),
       }),
+      // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     } as any)
 
     const response = await server.inject({
