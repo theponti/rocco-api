@@ -30,6 +30,7 @@ export const takeOne = <T>(values: T[]): T => {
 
 // Define this helper somewhere in your codebase:
 export const takeUniqueOrThrow = <T>(values: T[]): T => {
+  if (!Array.isArray(values)) return values
   if (values.length !== 1) throw new Error('Found non unique or inexistent value')
   return values[0]
 }

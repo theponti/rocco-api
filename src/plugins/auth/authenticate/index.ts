@@ -47,7 +47,6 @@ const authenticatePlugin: FastifyPluginAsync = async (server) => {
         .then(takeUniqueOrThrow)
 
       if (!fetchedEmailToken) {
-        // If the token doesn't exist, return 400 bad request
         reply.log.error('Login token does not exist')
         track(APP_USER_ID, EVENTS.USER_EVENTS.EMAIL_TOKEN_VALIDATED_FAILURE, {
           reason: TOKEN_FAILURE_REASONS.NOT_FOUND,
@@ -56,7 +55,6 @@ const authenticatePlugin: FastifyPluginAsync = async (server) => {
       }
 
       if (!fetchedEmailToken.Token.valid) {
-        // If the token doesn't exist or is not valid, return 401 unauthorized
         request.session.delete()
         reply.log.error('Login token is not valid')
         track(APP_USER_ID, EVENTS.USER_EVENTS.EMAIL_TOKEN_VALIDATED_FAILURE, {
